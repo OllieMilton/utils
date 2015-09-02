@@ -7,7 +7,7 @@ public class StateHolder<T extends Enum<T>> {
 
 	private T currentState;
 	private T previousState;
-	private StateListener<T> listener;
+	private StateTransitionListener<T> listener;
 	private ReadWriteLock lock;
 	
 	public StateHolder(T initialState) {
@@ -15,7 +15,7 @@ public class StateHolder<T extends Enum<T>> {
 		lock = new ReentrantReadWriteLock(true);
 	}
 	
-	public StateHolder(StateListener<T> listener, T initialState) {
+	public StateHolder(StateTransitionListener<T> listener, T initialState) {
 		this(initialState);
 		this.listener = listener;
 	}
