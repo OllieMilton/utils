@@ -106,9 +106,8 @@ public class StateHolder<T extends Enum<T>> {
 	public void transition(T newState) {
 		lock.writeLock().lock();
 		try {
-			if (checkTerminal(newState)) {
-				tryTransition(newState);
-			}
+			checkTerminal(newState);
+			tryTransition(newState);
 		} finally {
 			lock.writeLock().unlock();
 		}
@@ -122,7 +121,8 @@ public class StateHolder<T extends Enum<T>> {
 	public void conditionalTransition(T condition, T newState) {
 		lock.writeLock().lock();
 		try {
-			if (checkTerminal(newState) && currentState == condition) {
+			checkTerminal(newState);
+			if (currentState == condition) {
 				previousState = currentState;
 				currentState = newState;
 				if (listener != null) {
@@ -134,15 +134,10 @@ public class StateHolder<T extends Enum<T>> {
 		}
 	}
 	
-	private boolean checkTerminal(T newState) {
-		if (!terminalStates.isEmpty()) {
-			if (terminalStates.contains(newState)) {
-				return false;
-			} else if (terminalStates.contains(currentState)) {
-				throw new IllegalStateException("Cannot transition to state ["+newState+"] - terminal state ["+currentState+"] has been reached.");
-			}
+	private void checkTerminal(T newState) {
+		if (!terminalStates.isEmpty() && !terminalStates.contains(newState) && terminalStates.contains(currentState)) {
+			throw new IllegalStateException("Cannot transition to state ["+newState+"] - terminal state ["+currentState+"] has been reached.");
 		}
-		return true;
 	}
 	
 	/**
