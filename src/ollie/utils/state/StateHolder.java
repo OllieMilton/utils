@@ -161,7 +161,12 @@ public class StateHolder<T extends Enum<T>> {
 		boolean result = false;
 		lock.writeLock().lock();
 		try {
-			if (terminalStates.isEmpty() || !terminalStates.contains(currentState)) {
+			// no terminal states configured...
+			if (terminalStates.isEmpty() || 
+					// new state is terminal we don't care what current is...
+					(terminalStates.contains(newState)) ||
+					// or new state is non terminal and current state is non terminal.
+					(!terminalStates.contains(currentState))) {
 				previousState = currentState;
 				currentState = newState;
 				result = true;
