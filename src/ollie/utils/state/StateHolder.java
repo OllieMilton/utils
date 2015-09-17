@@ -1,5 +1,8 @@
 package ollie.utils.state;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -8,8 +11,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * state in a thread safe manor using a reentrant read write lock.
  * Additionally a listeners can be supplied so that some action can hang off 
  * a state transition - not that the listener is invoked from inside the write lock.
- * A terminal state can also be supplied, once reached any call to transition the state will 
- * result in an {@code IllegalStateException} until state has been reset via the method {@code reset()}.
+ * A set of terminal states can also be supplied, once any of the terminal states have been reached 
+ * any call to transition the state where the incoming state is not a terminal will result in an 
+ * {@code IllegalStateException} until state has been reset via the method {@code reset()}.
  *
  *  
  * @author Ollie
@@ -18,7 +22,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class StateHolder<T extends Enum<T>> {
 
-	private T terminalState;
+	private Set<T> terminalStates;
 	private T initialState;
 	private T currentState;
 	private T previousState;
@@ -33,6 +37,7 @@ public class StateHolder<T extends Enum<T>> {
 		this.initialState = initialState;
 		currentState = initialState;
 		lock = new ReentrantReadWriteLock(true);
+		terminalStates = new HashSet<>();
 	}
 	
 	/**
@@ -40,9 +45,10 @@ public class StateHolder<T extends Enum<T>> {
 	 * @param initialState - the initial state.
 	 * @param terminalState - the terminal state.
 	 */
-	public StateHolder(T initialState, T terminalState) {
+	@SafeVarargs
+	public StateHolder(T initialState, T...terminalStates) {
 		this(initialState);
-		this.terminalState = terminalState;
+		this.terminalStates.addAll(Arrays.asList(terminalStates));
 	}
 	
 	/**
@@ -61,8 +67,9 @@ public class StateHolder<T extends Enum<T>> {
 	 * @param initialState - the initial state.
 	 * @param terminalState - the terminal state.
 	 */
-	public StateHolder(StateTransitionListener<T> listener, T initialState, T terminalState) {
-		this(initialState, terminalState);
+	@SafeVarargs
+	public StateHolder(StateTransitionListener<T> listener, T initialState, T...terminalStates) {
+		this(initialState, terminalStates);
 		this.listener = listener;
 	}
 	
@@ -99,11 +106,8 @@ public class StateHolder<T extends Enum<T>> {
 	public void transition(T newState) {
 		lock.writeLock().lock();
 		try {
-			checkTerminal();
-			previousState = currentState;
-			currentState = newState;
-			if (listener != null) {
-				listener.onStateTransition(newState, previousState);
+			if (checkTerminal(newState)) {
+				tryTransition(newState);
 			}
 		} finally {
 			lock.writeLock().unlock();
@@ -118,8 +122,7 @@ public class StateHolder<T extends Enum<T>> {
 	public void conditionalTransition(T condition, T newState) {
 		lock.writeLock().lock();
 		try {
-			checkTerminal();
-			if (currentState == condition) {
+			if (checkTerminal(newState) && currentState == condition) {
 				previousState = currentState;
 				currentState = newState;
 				if (listener != null) {
@@ -131,10 +134,15 @@ public class StateHolder<T extends Enum<T>> {
 		}
 	}
 	
-	private void checkTerminal() {
-		if (terminalState != null && currentState == terminalState) {
-			throw new IllegalStateException("Cannot transition - terminal state ["+terminalState+"] has been reached.");
+	private boolean checkTerminal(T newState) {
+		if (!terminalStates.isEmpty()) {
+			if (terminalStates.contains(newState)) {
+				return false;
+			} else if (terminalStates.contains(currentState)) {
+				throw new IllegalStateException("Cannot transition to state ["+newState+"] - terminal state ["+currentState+"] has been reached.");
+			}
 		}
+		return true;
 	}
 	
 	/**
@@ -147,5 +155,28 @@ public class StateHolder<T extends Enum<T>> {
 		} finally {
 			lock.writeLock().unlock();
 		}
+	}
+	
+	/**
+	 * Attempts to transition to the given state if not in the terminal state.
+	 * @param newState - the state to transition to.
+	 * @return true if successfully transitioned.
+	 */
+	public boolean tryTransition(T newState) {
+		boolean result = false;
+		lock.writeLock().lock();
+		try {
+			if (terminalStates.isEmpty() || !terminalStates.contains(currentState)) {
+				previousState = currentState;
+				currentState = newState;
+				result = true;
+				if (listener != null) {
+					listener.onStateTransition(newState, previousState);
+				}
+			}
+		} finally {
+			lock.writeLock().unlock();
+		}
+		return result;
 	}
 }
