@@ -87,6 +87,20 @@ public class StateHolder<T extends Enum<T>> {
 	}
 	
 	/**
+	 * @return True if the current state is any of the given states.
+	 */
+	@SafeVarargs
+	public final boolean is(T...args) {
+		lock.readLock().lock();
+		try {
+			Set<T> set = new HashSet<>(Arrays.asList(args));
+			return set.contains(currentState);
+		} finally {
+			lock.readLock().unlock();
+		}
+	}
+	
+	/**
 	 * Gets the state that was previously current.
 	 * @return The previous state.
 	 */
@@ -123,11 +137,7 @@ public class StateHolder<T extends Enum<T>> {
 		try {
 			checkTerminal(newState);
 			if (currentState == condition) {
-				previousState = currentState;
-				currentState = newState;
-				if (listener != null) {
-					listener.onStateTransition(newState, previousState);
-				}
+				tryTransition(newState);
 			}
 		} finally {
 			lock.writeLock().unlock();
@@ -161,9 +171,9 @@ public class StateHolder<T extends Enum<T>> {
 		boolean result = false;
 		lock.writeLock().lock();
 		try {
-			// no terminal states configured...
-			if (terminalStates.isEmpty() || 
-					// new state is terminal we don't care what current is...
+			// new state must be different and no terminal states configured...
+			if ((newState != currentState) && terminalStates.isEmpty() || 
+					// or new state is terminal we don't care what current is...
 					(terminalStates.contains(newState)) ||
 					// or new state is non terminal and current state is non terminal.
 					(!terminalStates.contains(currentState))) {
@@ -178,5 +188,20 @@ public class StateHolder<T extends Enum<T>> {
 			lock.writeLock().unlock();
 		}
 		return result;
+	}
+	
+	/**
+	 * @return True if current state is a terminal state, false if no terminals states are configured or not in a terminal state.
+	 */
+	public boolean isInTerminalState() {
+		if (!terminalStates.isEmpty()) {
+			lock.readLock().lock();
+			try {
+				return terminalStates.contains(currentState);
+			} finally {
+				lock.readLock().unlock();
+			}
+		}
+		return false;
 	}
 }
