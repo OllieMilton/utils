@@ -8,7 +8,13 @@ package ollie.utils.datastructure;
 public interface Buffer<T> {
 
 	/**
-	 * Add the given array to the tail of the buffer.
+	 * Add the given element to the buffer.
+	 * @param in - the elements to add.
+	 */
+	void put(T in);
+	
+	/**
+	 * Add the elements from the given array to the tail of the buffer.
 	 * @param in - the array to add to the buffer.
 	 */
 	void put(T[] in);
