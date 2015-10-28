@@ -18,7 +18,6 @@ public interface Buffer<T> {
 	 * @return
 	 */
 	T get();
-
 	
 	/**
 	 * Get enough from the front of the buffer to fill the given array. Partially fills the array if the buffer does not contain enough.
