@@ -8,6 +8,7 @@ public class CircularBuffer<T> implements Buffer<T> {
 	private T[] buffer;
 	private int readPos;
 	private int writePos;
+	private boolean full = false;
 	
 	@SuppressWarnings("unchecked")
 	public CircularBuffer(int size, Class<T> type) {
@@ -21,15 +22,20 @@ public class CircularBuffer<T> implements Buffer<T> {
 	public void put(T[] in) {
 		if (in.length <= freeSpace()) {
 			if (writePos + in.length <= buffer.length) {
+				// we can populate the buffer in a single operation
 				System.arraycopy(in, 0, buffer, writePos, in.length);
 				writePos += in.length;
 			} else {
+				// going to overrun the array length so need to wrap
 				int firstWrite = buffer.length - writePos;
 				int secondWrite = in.length - firstWrite;
 				System.arraycopy(in, 0, buffer, writePos, firstWrite);
 				writePos = 0;
 				System.arraycopy(in, 0, buffer, writePos, secondWrite);
 				writePos += secondWrite;
+			}
+			if (readPos == writePos) {
+				full = true;
 			}
 		} else {
 			throw new BufferOverflowException();
@@ -44,6 +50,7 @@ public class CircularBuffer<T> implements Buffer<T> {
 		readPos = readPos % buffer.length;
 		T result = buffer[readPos];
 		readPos ++;
+		full = false;
 		return result;
 	}
 
@@ -63,14 +70,14 @@ public class CircularBuffer<T> implements Buffer<T> {
 		int remaining = size();
 		int read = -1;
 		if (remaining > len) {
-			// more bytes available than requested so set read to the number requested
+			// more elements available than requested so set read to the number requested
 			read = len;
 		} else if (remaining > 0) {
-			// less bytes available than requested so set read to the number remaining
+			// less elements available than requested so set read to the number remaining
 			read = remaining;
 		}
 		if (read > -1) {
-			// copy read number of bytes into b
+			// copy read number of elements into t
 			int firstRead = (buffer.length - readPos);
 			if (read <= firstRead) {
 				// can do it in a single operation
@@ -84,6 +91,7 @@ public class CircularBuffer<T> implements Buffer<T> {
 				System.arraycopy(buffer, readPos, t, off+firstRead, secondRead);
 				readPos += secondRead;
 			}
+			full = false;
 		}
 		return read;
 	}
@@ -122,7 +130,7 @@ public class CircularBuffer<T> implements Buffer<T> {
 		} else if (writePos > readPos) {
 			return (buffer.length - writePos) + readPos;
 		} else {
-			return buffer.length;
+			return full ? 0 : buffer.length;
 		}
 	}
 	
@@ -131,7 +139,7 @@ public class CircularBuffer<T> implements Buffer<T> {
 	 */
 	@Override
 	public boolean isEmpty() {
-		return freeSpace() == buffer.length; 
+		return !full; 
 	}
 
 }
