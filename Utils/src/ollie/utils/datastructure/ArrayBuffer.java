@@ -56,14 +56,14 @@ public class ArrayBuffer<T> implements Buffer<T> {
 		int remaining = writePos-readPos;
 		int read = -1;
 		if (remaining > len) {
-			// more Ts available than requested so set read to the number requested
+			// more elements available than requested so set read to the number requested
 			read = len;
 		} else if (remaining > 0) {
-			// less Ts available than requested so set read to the number remaining
+			// less elements available than requested so set read to the number remaining
 			read = remaining;
 		}
 		if (read > -1) {
-			// copy read number of Ts into b
+			// copy read number of elements into b
 			System.arraycopy(buffer, readPos, b, off, read);
 			readPos += read;
 		}
@@ -99,13 +99,7 @@ public class ArrayBuffer<T> implements Buffer<T> {
 	 */
 	@Override
 	public int freeSpace() {
-		if (readPos > writePos) {
-			return readPos - writePos;
-		} else if (writePos > readPos) {
-			return (buffer.length - writePos) + readPos;
-		} else {
-			return buffer.length;
-		}
+		return buffer.length - writePos;
 	}
 
 	/* (non-Javadoc)
