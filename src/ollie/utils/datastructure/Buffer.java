@@ -57,9 +57,9 @@ public interface Buffer<T> {
 	int freeSpace();
 
 	/**
-	 * Determines whether the buffer is full.
-	 * @return true if the buffer is full.
+	 * Determines whether the buffer is empty.
+	 * @return true if the buffer is empty.
 	 */
-	boolean isFull();
+	boolean isEmpty();
 
 }
