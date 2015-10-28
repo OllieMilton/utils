@@ -17,11 +17,23 @@ public class ArrayBuffer<T> implements Buffer<T> {
 	}
 	
 	/* (non-Javadoc)
+	 * @see ollie.utils.datastructure.Buffer#put(java.lang.Object)
+	 */
+	@Override
+	public void put(T in) {
+		if (freeSpace() > 0) {
+			buffer[writePos++] = in;
+		} else {
+			throw new BufferOverflowException();
+		}
+	}
+	
+	/* (non-Javadoc)
 	 * @see ollie.utils.datastructure.Buffer#put(java.lang.Object[])
 	 */
 	@Override
 	public void put(T[] in) {
-		if (writePos + in.length <= buffer.length) {
+		if (freeSpace() >= in.length) {
 			System.arraycopy(in, 0, buffer, writePos, in.length);
 			writePos += in.length;
 		} else {

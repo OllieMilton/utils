@@ -14,7 +14,19 @@ public class CircularBuffer<T> implements Buffer<T> {
 	public CircularBuffer(int size, Class<T> type) {
 		buffer = (T[]) Array.newInstance(type, size);
 	}
-		
+			
+	/* (non-Javadoc)
+	 * @see ollie.utils.datastructure.Buffer#put(java.lang.Object)
+	 */
+	@Override
+	public void put(T in) {
+		if (freeSpace() > 0) {
+			buffer[writePos++] = in;
+		} else {
+			throw new BufferOverflowException();
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see ollie.utils.datastructure.Buffer#put(java.lang.Object[])
 	 */
