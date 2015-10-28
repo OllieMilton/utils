@@ -82,5 +82,6 @@ public class CircularBufferTest {
 		buff.get(result);
 		Assert.assertArrayEquals(new Integer[] {20,21,22,null, null}, result);
 		
+		Assert.assertTrue(buff.isEmpty());
 	}
 }

@@ -14,6 +14,9 @@ public class CircularBuffer<T> implements Buffer<T> {
 		buffer = (T[]) Array.newInstance(type, size);
 	}
 		
+	/* (non-Javadoc)
+	 * @see ollie.utils.datastructure.Buffer#put(java.lang.Object[])
+	 */
 	@Override
 	public void put(T[] in) {
 		if (in.length <= freeSpace()) {
@@ -33,6 +36,9 @@ public class CircularBuffer<T> implements Buffer<T> {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see ollie.utils.datastructure.Buffer#get()
+	 */
 	@Override
 	public T get() {
 		readPos = readPos % buffer.length;
@@ -41,11 +47,17 @@ public class CircularBuffer<T> implements Buffer<T> {
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see ollie.utils.datastructure.Buffer#get(java.lang.Object[])
+	 */
 	@Override
 	public int get(T[] t) {
 		return get(t, 0, t.length);
 	}
 
+	/* (non-Javadoc)
+	 * @see ollie.utils.datastructure.Buffer#get(java.lang.Object[], int, int)
+	 */
 	@Override
 	public int get(T[] t, int off, int len) {
 		int remaining = size();
@@ -76,21 +88,33 @@ public class CircularBuffer<T> implements Buffer<T> {
 		return read;
 	}
 
+	/* (non-Javadoc)
+	 * @see ollie.utils.datastructure.Buffer#pos()
+	 */
 	@Override
 	public int pos() {
 		return readPos;
 	}
 
+	/* (non-Javadoc)
+	 * @see ollie.utils.datastructure.Buffer#size()
+	 */
 	@Override
 	public int size() {
 		return buffer.length - freeSpace();
 	}
 
+	/* (non-Javadoc)
+	 * @see ollie.utils.datastructure.Buffer#length()
+	 */
 	@Override
 	public int length() {
 		return buffer.length;
 	}
 
+	/* (non-Javadoc)
+	 * @see ollie.utils.datastructure.Buffer#freeSpace()
+	 */
 	@Override
 	public int freeSpace() {
 		if (readPos > writePos) {
@@ -102,9 +126,12 @@ public class CircularBuffer<T> implements Buffer<T> {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see ollie.utils.datastructure.Buffer#isEmpty()
+	 */
 	@Override
-	public boolean isFull() {
-		return freeSpace() == 0; 
+	public boolean isEmpty() {
+		return freeSpace() == buffer.length; 
 	}
 
 }
