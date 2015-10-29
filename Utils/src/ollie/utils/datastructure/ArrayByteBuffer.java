@@ -80,6 +80,17 @@ public class ArrayByteBuffer implements ByteBuffer {
 	}
 	
 	/* (non-Javadoc)
+     * @see ollie.utils.datastructure.ByteBuffer#seek(int)
+     */
+    @Override
+    public void seek(int pos) {
+        if (pos < 0 || pos > buffer.length) {
+            throw new IndexOutOfBoundsException("Position ["+pos+"] is outside the bounds of the buffer.");
+        }
+        readPos = pos;
+    }
+	
+	/* (non-Javadoc)
 	 * @see ollie.utils.datastructure.ByteBuffer#pos()
 	 */
 	@Override
