@@ -8,12 +8,16 @@ public class ArrayBuffer<T> implements Buffer<T> {
 	private T[] buffer;
 	private int readPos;
 	private int writePos;
+	private T emptyValue;
+	
+	public ArrayBuffer(int size, Class<T> clazz) {
+		this(size, clazz, null);
+	}
 	
 	@SuppressWarnings("unchecked")
-	public ArrayBuffer(int size, Class<T> clazz) {
+	public ArrayBuffer(int size, Class<T> clazz, T emptyValue) {
 		buffer = (T[]) Array.newInstance(clazz, size);
-		readPos = 0;
-		writePos = 0;
+		this.emptyValue = emptyValue;
 	}
 	
 	/* (non-Javadoc)
@@ -47,7 +51,7 @@ public class ArrayBuffer<T> implements Buffer<T> {
 	@Override
 	public T get() {
 		if (readPos >= writePos) {
-			return null;
+			return emptyValue;
 		}
 		return buffer[readPos++];
 	}
@@ -120,5 +124,13 @@ public class ArrayBuffer<T> implements Buffer<T> {
 	@Override
 	public boolean isEmpty() {
 		return freeSpace() == buffer.length;
+	}
+	
+	/* (non-Javadoc)
+	 * @see ollie.utils.datastructure.Buffer#setEmptyValue(java.lang.Object)
+	 */
+	@Override
+	public void setEmptyValue(T emptyValue) {
+		this.emptyValue = emptyValue;
 	}
 }
