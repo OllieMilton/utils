@@ -3,18 +3,32 @@ package ollie.utils.datastructure;
 import java.lang.reflect.Array;
 import java.nio.BufferOverflowException;
 
+/**
+ * An implementation of a circular buffer that does not allow overwriting of occupied unread elements.
+ * If an attempt is made to add an element to the buffer and there is no free space then a {@code BufferOverflowException} is thrown.
+ * 
+ * @author Ollie
+ *
+ * @param <T> The generic type contained in the buffer.
+ */
 public class CircularBuffer<T> implements Buffer<T> {
 	
 	private T[] buffer;
 	private int readPos;
 	private int writePos;
 	private boolean full = false;
+	private T emptyValue;
+	
+	public CircularBuffer(int size, Class<T> type) {
+		this(size, type, null);
+	}
 	
 	@SuppressWarnings("unchecked")
-	public CircularBuffer(int size, Class<T> type) {
+	public CircularBuffer(int size, Class<T> type, T emptyValue) {
 		buffer = (T[]) Array.newInstance(type, size);
+		this.emptyValue = emptyValue;
 	}
-			
+				
 	/* (non-Javadoc)
 	 * @see ollie.utils.datastructure.Buffer#put(java.lang.Object)
 	 */
@@ -22,6 +36,9 @@ public class CircularBuffer<T> implements Buffer<T> {
 	public void put(T in) {
 		if (freeSpace() > 0) {
 			buffer[writePos++] = in;
+			if (readPos == writePos) {
+				full = true;
+			}
 		} else {
 			throw new BufferOverflowException();
 		}
@@ -59,10 +76,13 @@ public class CircularBuffer<T> implements Buffer<T> {
 	 */
 	@Override
 	public T get() {
-		readPos = readPos % buffer.length;
-		T result = buffer[readPos];
-		readPos ++;
-		full = false;
+		T result = emptyValue;
+		if (size() > 0) {
+			readPos = readPos % buffer.length;
+			result = buffer[readPos];
+			readPos ++;
+			full = false;
+		}
 		return result;
 	}
 
@@ -151,7 +171,15 @@ public class CircularBuffer<T> implements Buffer<T> {
 	 */
 	@Override
 	public boolean isEmpty() {
-		return !full; 
+		return size() == 0; 
+	}
+	
+	/* (non-Javadoc)
+	 * @see ollie.utils.datastructure.Buffer#setEmptyValue(java.lang.Object)
+	 */
+	@Override
+	public void setEmptyValue(T emptyValue) {
+		this.emptyValue = emptyValue;
 	}
 
 }

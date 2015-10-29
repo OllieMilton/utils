@@ -21,14 +21,14 @@ public interface Buffer<T> {
 
 	/**
 	 * Get the next element from the front of the buffer.
-	 * @return
+	 * @return The next element from the buffer or null or the empty value if configured.
 	 */
 	T get();
 	
 	/**
 	 * Get enough from the front of the buffer to fill the given array. Partially fills the array if the buffer does not contain enough.
 	 * @param t - the array to fill.
-	 * @return The actual number of elements added to the array.
+	 * @return The actual number of elements added to the array or -1 if the end of the buffer has been reached.
 	 */
 	int get(T[] t);
 
@@ -37,7 +37,7 @@ public interface Buffer<T> {
 	 * @param b - the array to add the elements to.
 	 * @param off - the offset to start adding the elements in the array at.
 	 * @param len - the number of elements to add.
-	 * @return The actual number of elements added to the array.
+	 * @return The actual number of elements added to the array or -1 if the end of the buffer has been reached.
 	 */
 	int get(T[] b, int off, int len);
 
@@ -57,7 +57,7 @@ public interface Buffer<T> {
 	int length();
 
 	/**
-	 * @return The number of empty elements in the buffer.
+	 * @return The number of elements available to be written to in the buffer.
 	 */
 	int freeSpace();
 
@@ -67,4 +67,9 @@ public interface Buffer<T> {
 	 */
 	boolean isEmpty();
 
+	/**
+	 * Sets an object to be returned on a call to {@code get()} if the buffer is empty. Defaults to null.
+	 * @param emptyValue - the value to return if the buffer is empty.
+	 */
+	void setEmptyValue(T emptyValue);
 }

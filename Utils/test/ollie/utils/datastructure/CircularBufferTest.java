@@ -17,6 +17,12 @@ public class CircularBufferTest {
 	}
 	
 	@Test
+	public void testEmptyGet() {
+		Buffer<Byte> buff = new CircularBuffer<>(5, Byte.class, (byte)-1);
+		Assert.assertEquals(-1, buff.get().byteValue());
+	}
+	
+	@Test
 	public void testGet() {
 		Buffer<Integer> buff = new CircularBuffer<>(5, Integer.class);
 		buff.put(new Integer[] {1,2,3,4,5});
@@ -25,31 +31,31 @@ public class CircularBufferTest {
 		Assert.assertEquals(0, buff.freeSpace());
 		
 		Assert.assertEquals(1, buff.get().intValue());
-		
 		Assert.assertEquals(4, buff.size());
 		Assert.assertEquals(5, buff.length());
 		Assert.assertEquals(1, buff.freeSpace());
 		
 		Assert.assertEquals(2, buff.get().intValue());
-		
 		Assert.assertEquals(3, buff.size());
 		Assert.assertEquals(5, buff.length());
 		Assert.assertEquals(2, buff.freeSpace());
 		
 		Assert.assertEquals(3, buff.get().intValue());
-		
 		Assert.assertEquals(2, buff.size());
 		Assert.assertEquals(5, buff.length());
 		Assert.assertEquals(3, buff.freeSpace());
 		
 		Assert.assertEquals(4, buff.get().intValue());
-		
 		Assert.assertEquals(1, buff.size());
 		Assert.assertEquals(5, buff.length());
 		Assert.assertEquals(4, buff.freeSpace());
 		
 		Assert.assertEquals(5, buff.get().intValue());
+		Assert.assertEquals(0, buff.size());
+		Assert.assertEquals(5, buff.length());
+		Assert.assertEquals(5, buff.freeSpace());
 		
+		Assert.assertNull(buff.get());
 		Assert.assertEquals(0, buff.size());
 		Assert.assertEquals(5, buff.length());
 		Assert.assertEquals(5, buff.freeSpace());
@@ -84,4 +90,5 @@ public class CircularBufferTest {
 		
 		Assert.assertTrue(buff.isEmpty());
 	}
+
 }
