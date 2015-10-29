@@ -40,6 +40,12 @@ public interface Buffer<T> {
 	 * @return The actual number of elements added to the array or -1 if the end of the buffer has been reached.
 	 */
 	int get(T[] b, int off, int len);
+	
+	/**
+	 * Resets the read position to the given position. Note this can go wrong in implementations that discard the buffer over time.
+	 * @param pos -  the new read position.
+	 */
+	void seek(int pos);
 
 	/**
 	 * @return The current index at the front of the buffer
