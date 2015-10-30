@@ -34,12 +34,12 @@ public interface Buffer<T> {
 
 	/**
 	 * Gets the specified number of elements from the buffer and adds them to the given array starting from the given offset.
-	 * @param b - the array to add the elements to.
+	 * @param t - the array to add the elements to.
 	 * @param off - the offset to start adding the elements in the array at.
 	 * @param len - the number of elements to add.
 	 * @return The actual number of elements added to the array or -1 if the end of the buffer has been reached.
 	 */
-	int get(T[] b, int off, int len);
+	int get(T[] t, int off, int len);
 	
 	/**
 	 * Resets the read position to the given position. Note this can go wrong in implementations that discard the buffer over time.

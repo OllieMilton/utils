@@ -82,15 +82,15 @@ public class CircularByteBuffer implements ByteBuffer {
 	 * @see ollie.utils.datastructure.ByteBuffer#get(java.lang.Object[])
 	 */
 	@Override
-	public int get(byte[] t) {
-		return get(t, 0, t.length);
+	public int get(byte[] b) {
+		return get(b, 0, b.length);
 	}
 
 	/* (non-Javadoc)
 	 * @see ollie.utils.datastructure.ByteBuffer#get(java.lang.Object[], int, int)
 	 */
 	@Override
-	public int get(byte[] t, int off, int len) {
+	public int get(byte[] b, int off, int len) {
 		int remaining = size();
 		int read = -1;
 		if (remaining > len) {
@@ -105,14 +105,14 @@ public class CircularByteBuffer implements ByteBuffer {
 			int firstRead = (buffer.length - readPos);
 			if (read <= firstRead) {
 				// can do it in a single operation
-				System.arraycopy(buffer, readPos, t, off, read);
+				System.arraycopy(buffer, readPos, b, off, read);
 				readPos += read;
 			} else {
 				// need to wrap back round to the beginning of the array
-				System.arraycopy(buffer, readPos, t, off, firstRead);
+				System.arraycopy(buffer, readPos, b, off, firstRead);
 				readPos = 0;
 				int secondRead = writePos;
-				System.arraycopy(buffer, readPos, t, off+firstRead, secondRead);
+				System.arraycopy(buffer, readPos, b, off+firstRead, secondRead);
 				readPos += secondRead;
 			}
 			full = false;
