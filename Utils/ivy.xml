@@ -1,6 +1,11 @@
 <ivy-module version="2.0">
     <info organisation="ollie.utils" module="utils"/>
+    <configurations>
+    	<conf name="compile" visibility="public"/>
+    	<conf name="master" visibility="public"/>
+    	<conf name="test" visibility="private"/>
+    </configurations>
     <dependencies>
-        <dependency org="junit" name="junit" rev="4.12"/>
+        <dependency org="junit" name="junit" rev="4.12" conf="test -> master"/>
     </dependencies>
 </ivy-module>
