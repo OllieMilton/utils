@@ -4,7 +4,7 @@ import java.lang.reflect.Array;
 import java.nio.BufferOverflowException;
 
 /**
- * An implementation of a circular buffer that uses native calls to {@code System.array.copy()} for efficiency and does not allow 
+ * An implementation of a circular buffer that uses native calls to {@code System.arraycopy()} for efficiency and does not allow 
  * overwriting of occupied unread elements.
  * If an attempt is made to add an element to the buffer and there is no free space then a {@code BufferOverflowException} is thrown.
  * 
