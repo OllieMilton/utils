@@ -60,15 +60,15 @@ public class ArrayBuffer<T> implements Buffer<T> {
 	 * @see ollie.utils.datastructure.Buffer#get(java.lang.Object[])
 	 */
 	@Override
-	public int get(T[] b) {
-		return get(b, 0, b.length);
+	public int get(T[] t) {
+		return get(t, 0, t.length);
 	}
 	
 	/* (non-Javadoc)
 	 * @see ollie.utils.datastructure.Buffer#get(java.lang.Object[], int, int)
 	 */
 	@Override
-	public int get(T[] b, int off, int len) {
+	public int get(T[] t, int off, int len) {
 		int remaining = writePos-readPos;
 		int read = -1;
 		if (remaining > len) {
@@ -80,7 +80,7 @@ public class ArrayBuffer<T> implements Buffer<T> {
 		}
 		if (read > -1) {
 			// copy read number of elements into b
-			System.arraycopy(buffer, readPos, b, off, read);
+			System.arraycopy(buffer, readPos, t, off, read);
 			readPos += read;
 		}
 		return read;

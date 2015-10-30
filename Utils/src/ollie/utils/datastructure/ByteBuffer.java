@@ -22,10 +22,10 @@ public interface ByteBuffer {
 	
 	/**
 	 * Get enough from the front of the buffer to fill the given array. Partially fills the array if the buffer does not contain enough.
-	 * @param t - the array to fill.
+	 * @param b - the array to fill.
 	 * @return The actual number of bytes added to the array or -1 if the end of the buffer has been reached.
 	 */
-	int get(byte[] t);
+	int get(byte[] b);
 
 	/**
 	 * Gets the specified number of bytes from the buffer and adds them to the given array starting from the given offset.
