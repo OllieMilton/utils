@@ -1,8 +1,10 @@
 package ollie.utils.concurrent;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class Promise<T> implements Future<T> {
 
@@ -11,12 +13,14 @@ public class Promise<T> implements Future<T> {
 	private boolean cancelled = false;
 	private boolean done = false;
 
-	public T get(long timeout, TimeUnit unit) {
+	public T get(long timeout, TimeUnit unit) throws TimeoutException {
 		try {
 			if (unit == null) {
 				latch.await();
 			} else {
-				latch.await(timeout, unit);
+				if (!latch.await(timeout, unit)) {
+					throw new TimeoutException();
+				}
 			}
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
@@ -27,7 +31,12 @@ public class Promise<T> implements Future<T> {
 	}
 
 	public T get() {
-		return get(-1L, null);
+		try {
+			return get(-1L, null);
+		} catch (TimeoutException e) {
+			// this will never happen.
+			return null;
+		}
 	}
 
 	public void set(T result) {
