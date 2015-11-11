@@ -207,4 +207,12 @@ public class StateHolder<T extends Enum<T>> {
 		}
 		return false;
 	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "StateHolder current state: "+currentState+", previous state: "+previousState;
+	}
 }
