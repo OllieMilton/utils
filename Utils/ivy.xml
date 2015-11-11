@@ -6,6 +6,6 @@
     	<conf name="test" visibility="private"/>
     </configurations>
     <dependencies>
-        <dependency org="junit" name="junit" rev="4.12" conf="test -> master"/>
+        <dependency org="junit" name="junit" rev="4.12" conf="test -> default"/>
     </dependencies>
 </ivy-module>
