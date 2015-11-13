@@ -1,4 +1,4 @@
-package ollie.utils.datastructure;
+package ollie.common.datastructure;
 
 import java.nio.BufferOverflowException;
 
