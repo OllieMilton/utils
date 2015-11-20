@@ -1,5 +1,6 @@
 package ollie.utils.concurrent;
 
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +24,9 @@ public class Promise<T> implements Future<T> {
 			}
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
+		}
+		if (cancelled) {
+			throw new CancellationException("Error - wait cancelled.");
 		}
 		T r = result;
 		result = null;

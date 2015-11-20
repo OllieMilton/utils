@@ -36,6 +36,9 @@ public class StateHolder<T extends Enum<T>> {
 	public StateHolder(T initialState) {
 		this.initialState = initialState;
 		currentState = initialState;
+		if (listener != null) {
+			listener.onStateTransition(currentState, previousState);
+		}
 		lock = new ReentrantReadWriteLock(true);
 		terminalStates = new HashSet<>();
 	}
@@ -156,7 +159,11 @@ public class StateHolder<T extends Enum<T>> {
 	public void reset() {
 		lock.writeLock().lock();
 		try {
+			previousState = currentState;
 			currentState = initialState;
+			if (listener != null) {
+				listener.onStateTransition(currentState, previousState);
+			}
 		} finally {
 			lock.writeLock().unlock();
 		}
