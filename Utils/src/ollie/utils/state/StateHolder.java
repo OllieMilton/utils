@@ -42,10 +42,10 @@ public class StateHolder<T extends Enum<T>> {
 	 */
 	public StateHolder(T initialState) {
 		this.initialState = initialState;
-		setState(initialState);
 		lock = new ReentrantReadWriteLock(true);
 		terminalStates = new HashSet<>();
 		waitMap = new ConcurrentHashMap<>();
+		setState(initialState);
 	}
 	
 	/**
