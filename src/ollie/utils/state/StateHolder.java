@@ -42,10 +42,7 @@ public class StateHolder<T extends Enum<T>> {
 	 */
 	public StateHolder(T initialState) {
 		this.initialState = initialState;
-		currentState = initialState;
-		if (listener != null) {
-			listener.onStateTransition(currentState, previousState);
-		}
+		setState(initialState);
 		lock = new ReentrantReadWriteLock(true);
 		terminalStates = new HashSet<>();
 		waitMap = new ConcurrentHashMap<>();
@@ -167,11 +164,7 @@ public class StateHolder<T extends Enum<T>> {
 	public void reset() {
 		lock.writeLock().lock();
 		try {
-			previousState = currentState;
-			currentState = initialState;
-			if (listener != null) {
-				listener.onStateTransition(currentState, previousState);
-			}
+			setState(initialState);
 		} finally {
 			lock.writeLock().unlock();
 		}
@@ -194,18 +187,25 @@ public class StateHolder<T extends Enum<T>> {
 						(terminalStates.contains(newState)) ||
 						// or new state is non terminal and current state is non terminal.
 						(!terminalStates.contains(currentState))) {
-					previousState = currentState;
-					currentState = newState;
+					setState(newState);
 					result = true;
-					if (listener != null) {
-						listener.onStateTransition(newState, previousState);
-					}
 				}
 			}
 		} finally {
 			lock.writeLock().unlock();
 		}
 		return result;
+	}
+	
+	private void setState(T newState) {
+		previousState = currentState;
+		currentState = newState;
+		for (ConditionalWait<T, T> condWait : waitMap.values()) {
+			condWait.test(newState, newState);
+		}
+		if (listener != null) {
+			listener.onStateTransition(newState, previousState);
+		}
 	}
 	
 	/**
