@@ -1,6 +1,7 @@
 package ollie.utils.state;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Assert;
@@ -56,5 +57,11 @@ public class StateHolderTest {
 		Assert.assertTrue("ThreadTwo false", threadTwo.get());
 		Assert.assertTrue("ThreadThree false", threadThree.get());
 		
+	}
+	
+	@Test
+	public void alreadyInState() throws TimeoutException {
+		StateHolder<TestState> sh = new StateHolder<>(TestState.ONE);
+		sh.waitForState(TestState.ONE, 1, TimeUnit.NANOSECONDS);
 	}
 }

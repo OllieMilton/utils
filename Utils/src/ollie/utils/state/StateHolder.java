@@ -231,6 +231,14 @@ public class StateHolder<T extends Enum<T>> {
 	 * @throws TimeoutException if the timeout expires.
 	 */
 	public void waitForState(T waitTest, long timeout, TimeUnit unit) throws TimeoutException {
+		lock.readLock().lock();
+		try {
+			if (currentState.equals(waitTest)) {
+				return;
+			}
+		} finally {
+			lock.readLock().unlock();
+		}
 		ConditionalWait<T, T> condWait = new ConditionalWait<>();
 		waitMap.put(Thread.currentThread(), condWait);
 		condWait.get(waitTest, timeout, unit);
