@@ -52,13 +52,13 @@ public class ConditionalWait<T, R> {
 
 	public void test(T test, R result) {
 		if ((waitTest == null && test == null) || (waitTest != null && waitTest.equals(test))) {
+			this.result = result;
 			latch.countDown();
 			done = true;
-			this.result = result;
 		}
 	}
 
-	public boolean cancel(boolean mayInterruptIfRunning) {
+	public boolean cancel() {
 		latch.countDown();
 		cancelled = true;
 		return true;
