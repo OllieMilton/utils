@@ -2,9 +2,15 @@ package ollie.utils.state;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import ollie.utils.concurrent.ConditionalWait;
 
 /**
  * A thread safe container for some 'state' enum. Methods are provided for transitioning 
@@ -28,6 +34,7 @@ public class StateHolder<T extends Enum<T>> {
 	private T previousState;
 	private StateTransitionListener<T> listener;
 	private ReadWriteLock lock;
+	private Map<Thread, ConditionalWait<T, T>> waitMap;
 	
 	/**
 	 * Constructs a new state holder with the given initial state.
@@ -41,6 +48,7 @@ public class StateHolder<T extends Enum<T>> {
 		}
 		lock = new ReentrantReadWriteLock(true);
 		terminalStates = new HashSet<>();
+		waitMap = new ConcurrentHashMap<>();
 	}
 	
 	/**
@@ -213,6 +221,32 @@ public class StateHolder<T extends Enum<T>> {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Makes the calling thread wait until current state becomes equal to the given state {@code waitTest}.
+	 * @param waitTest - the state to wait for.
+	 * @param timeout - the amount of time to timeout after.
+	 * @param unit - the unit of the timeout amount.
+	 * @throws TimeoutException if the timeout expires.
+	 */
+	public void waitForState(T waitTest, long timeout, TimeUnit unit) throws TimeoutException {
+		ConditionalWait<T, T> condWait = new ConditionalWait<>();
+		waitMap.put(Thread.currentThread(), condWait);
+		condWait.get(waitTest, timeout, unit);
+		waitMap.remove(Thread.currentThread());
+	}
+	
+	/**
+	 * Makes the calling thread wait until current state becomes equal to the given state {@code waitTest}.
+	 * @param waitTest - the state to wait for.
+	 */ 
+	public void waitForState(T waitTest) {
+		try {
+			waitForState(waitTest, -1L, null);
+		} catch (TimeoutException e) {
+			// this will never happen.
+		}
 	}
 	
 	/* (non-Javadoc)
