@@ -25,7 +25,7 @@ public class StateHolderTest {
 				sh.waitForState((value) -> value == TestState.THREE, 2, TimeUnit.SECONDS);
 				threadOne.set(true);
 			} catch (Exception e) {
-				
+				throw new RuntimeException(e);
 			}
 		}).start();
 		
@@ -34,7 +34,7 @@ public class StateHolderTest {
 				sh.waitForState((value) -> value == TestState.THREE, 2, TimeUnit.SECONDS);
 				threadTwo.set(true);
 			} catch (Exception e) {
-				
+				throw new RuntimeException(e);
 			}
 		}).start();
 		
@@ -43,7 +43,7 @@ public class StateHolderTest {
 				sh.waitForState((value) -> value == TestState.THREE, 2, TimeUnit.SECONDS);
 				threadThree.set(true);
 			} catch (Exception e) {
-				
+				throw new RuntimeException(e);
 			}
 		}).start();
 		
