@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ollie.utils.concurrent.ConditionalWait;
@@ -17,7 +16,7 @@ import ollie.utils.concurrent.WaitCondition;
  * A thread safe container for some 'state' enum. Methods are provided for transitioning 
  * state in a thread safe manor using a reentrant read write lock.
  * Additionally a listeners can be supplied so that some action can hang off 
- * a state transition - not that the listener is invoked from inside the write lock.
+ * a state transition - note that the listener is invoked from inside the read lock.
  * A set of terminal states can also be supplied, once any of the terminal states have been reached 
  * any call to transition the state where the incoming state is not a terminal will result in an 
  * {@code IllegalStateException} until state has been reset via the method {@code reset()}.
@@ -34,7 +33,7 @@ public class StateHolder<T extends Enum<T>> {
 	private T currentState;
 	private T previousState;
 	private StateTransitionListener<T> listener;
-	private ReadWriteLock lock;
+	private ReentrantReadWriteLock lock;
 	private Map<Thread, ConditionalWait<T, T>> waitMap;
 	
 	/**
@@ -47,6 +46,7 @@ public class StateHolder<T extends Enum<T>> {
 		terminalStates = new HashSet<>();
 		waitMap = new ConcurrentHashMap<>();
 		setState(initialState);
+		callListeners(initialState);
 	}
 	
 	/**
@@ -132,7 +132,7 @@ public class StateHolder<T extends Enum<T>> {
 			checkTerminal(newState);
 			tryTransition(newState);
 		} finally {
-			lock.writeLock().unlock();
+			releaseWriteLock();
 		}
 	}
 	
@@ -149,7 +149,7 @@ public class StateHolder<T extends Enum<T>> {
 				tryTransition(newState);
 			}
 		} finally {
-			lock.writeLock().unlock();
+			releaseWriteLock();
 		}
 	}
 	
@@ -167,7 +167,7 @@ public class StateHolder<T extends Enum<T>> {
 		try {
 			setState(initialState);
 		} finally {
-			lock.writeLock().unlock();
+			releaseWriteLock();
 		}
 	}
 	
@@ -189,18 +189,35 @@ public class StateHolder<T extends Enum<T>> {
 						// or new state is non terminal and current state is non terminal.
 						(!terminalStates.contains(currentState))) {
 					setState(newState);
+					// down grade the lock then call the listeners
+					lock.readLock().lock();
+					try {
+						releaseWriteLock();
+						callListeners(newState);
+					} finally {
+						lock.readLock().unlock();
+					}
 					result = true;
 				}
 			}
 		} finally {
-			lock.writeLock().unlock();
+			releaseWriteLock();
 		}
 		return result;
+	}
+	
+	private void releaseWriteLock() {
+		if (lock.isWriteLockedByCurrentThread()) {
+			lock.writeLock().unlock();
+		}
 	}
 	
 	private void setState(T newState) {
 		previousState = currentState;
 		currentState = newState;
+	}
+	
+	private void callListeners(T newState) {
 		for (ConditionalWait<T, T> condWait : waitMap.values()) {
 			condWait.test(newState, newState);
 		}
