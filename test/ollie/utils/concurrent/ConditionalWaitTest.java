@@ -82,4 +82,21 @@ public class ConditionalWaitTest {
 		condWait.get(TestState.THREE);
 	}
 	
+	public void lambdaTest() throws TimeoutException {
+		ConditionalWait<TestState, String> condWait = new ConditionalWait<>();
+		new Thread(() -> {
+			try {
+				Thread.sleep(200);
+				condWait.test(TestState.ONE, "ONE");
+				Thread.sleep(200);
+				condWait.test(TestState.TWO, "TWO");
+				Thread.sleep(200);
+				condWait.test(TestState.THREE, "THREE");
+			} catch (Exception e) {
+			
+			}
+		}).start();
+		Assert.assertEquals("THREE", condWait.get((value) -> value == TestState.THREE, 10, TimeUnit.MILLISECONDS));
+	}
+	
 }
