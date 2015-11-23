@@ -15,14 +15,22 @@ import java.util.concurrent.TimeoutException;
 public class ConditionalWait<T, R> {
 
 	private CountDownLatch latch = new CountDownLatch(1);
-	private T waitTest;
 	private R result;
+	private WaitCondition<T> condition;
 	private boolean cancelled = false;
 	private boolean done = false;
 
 	public R get(T waitTest, long timeout, TimeUnit unit) throws TimeoutException {
+		return get((value) -> doEqualityTest(waitTest, value), timeout, unit);
+	}
+	
+	private boolean doEqualityTest(T waitTest, T value) {
+		return ((waitTest == null && value == null) || (waitTest != null && waitTest.equals(value)));
+	}
+	
+	public R get(WaitCondition<T> condition, long timeout, TimeUnit unit) throws TimeoutException {
 		try {
-			this.waitTest = waitTest;
+			this.condition = condition;
 			if (unit == null) {
 				latch.await();
 			} else {
@@ -49,15 +57,24 @@ public class ConditionalWait<T, R> {
 			return null;
 		}
 	}
+	
+	public R get(WaitCondition<T> condition) {
+		try {
+			return get(condition, -1L, null);
+		} catch (TimeoutException e) {
+			// this will never happen.
+			return null;
+		}
+	}
 
 	public void test(T test, R result) {
-		if ((waitTest == null && test == null) || (waitTest != null && waitTest.equals(test))) {
+		if (condition.checkCondition(test)) {
 			this.result = result;
 			latch.countDown();
 			done = true;
 		}
 	}
-
+	
 	public boolean cancel() {
 		latch.countDown();
 		cancelled = true;

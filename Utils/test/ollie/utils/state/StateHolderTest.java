@@ -22,7 +22,7 @@ public class StateHolderTest {
 		final AtomicBoolean threadThree = new AtomicBoolean(false);
 		new Thread(() -> {
 			try {
-				sh.waitForState(TestState.THREE, 2, TimeUnit.SECONDS);
+				sh.waitForState((value) -> value == TestState.THREE, 2, TimeUnit.SECONDS);
 				threadOne.set(true);
 			} catch (Exception e) {
 				
@@ -31,7 +31,7 @@ public class StateHolderTest {
 		
 		new Thread(() -> {
 			try {
-				sh.waitForState(TestState.THREE, 2, TimeUnit.SECONDS);
+				sh.waitForState((value) -> value == TestState.THREE, 2, TimeUnit.SECONDS);
 				threadTwo.set(true);
 			} catch (Exception e) {
 				
@@ -40,7 +40,7 @@ public class StateHolderTest {
 		
 		new Thread(() -> {
 			try {
-				sh.waitForState(TestState.THREE, 2, TimeUnit.SECONDS);
+				sh.waitForState((value) -> value == TestState.THREE, 2, TimeUnit.SECONDS);
 				threadThree.set(true);
 			} catch (Exception e) {
 				
@@ -62,6 +62,6 @@ public class StateHolderTest {
 	@Test
 	public void alreadyInState() throws TimeoutException {
 		StateHolder<TestState> sh = new StateHolder<>(TestState.ONE);
-		sh.waitForState(TestState.ONE, 1, TimeUnit.NANOSECONDS);
+		sh.waitForState((value) -> value == TestState.ONE, 1, TimeUnit.NANOSECONDS);
 	}
 }

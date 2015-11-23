@@ -11,6 +11,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ollie.utils.concurrent.ConditionalWait;
+import ollie.utils.concurrent.WaitCondition;
 
 /**
  * A thread safe container for some 'state' enum. Methods are provided for transitioning 
@@ -230,11 +231,11 @@ public class StateHolder<T extends Enum<T>> {
 	 * @param unit - the unit of the timeout amount.
 	 * @throws TimeoutException if the timeout expires.
 	 */
-	public void waitForState(T waitTest, long timeout, TimeUnit unit) throws TimeoutException {
+	public void waitForState(WaitCondition<T> waitTest, long timeout, TimeUnit unit) throws TimeoutException {
 		ConditionalWait<T, T> condWait = null;
 		lock.readLock().lock();
 		try {
-			if (currentState.equals(waitTest)) {
+			if (waitTest.checkCondition(currentState)) {
 				return;
 			} else {
 				condWait = new ConditionalWait<>();
@@ -251,7 +252,7 @@ public class StateHolder<T extends Enum<T>> {
 	 * Makes the calling thread wait until current state becomes equal to the given state {@code waitTest}.
 	 * @param waitTest - the state to wait for.
 	 */ 
-	public void waitForState(T waitTest) {
+	public void waitForState(WaitCondition<T> waitTest) {
 		try {
 			waitForState(waitTest, -1L, null);
 		} catch (TimeoutException e) {
