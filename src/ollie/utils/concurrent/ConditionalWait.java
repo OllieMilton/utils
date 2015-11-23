@@ -19,6 +19,7 @@ public class ConditionalWait<T, R> {
 	private WaitCondition<T> condition;
 	private boolean cancelled = false;
 	private boolean done = false;
+	private Exception throwBack;
 
 	public R get(T waitTest, long timeout, TimeUnit unit) throws TimeoutException {
 		return get((value) -> doEqualityTest(waitTest, value), timeout, unit);
@@ -44,6 +45,9 @@ public class ConditionalWait<T, R> {
 		if (cancelled) {
 			throw new CancellationException("Error - wait cancelled.");
 		}
+		if (throwBack != null) {
+			throw new RuntimeException(throwBack);
+		}
 		R r = result;
 		result = null;
 		return r;
@@ -68,16 +72,22 @@ public class ConditionalWait<T, R> {
 	}
 
 	public void test(T test, R result) {
-		if (condition.checkCondition(test)) {
-			this.result = result;
+		try {
+			if (condition != null && condition.checkCondition(test)) {
+				this.result = result;
+				latch.countDown();
+				done = true;
+			}
+		} catch (Exception e) {
+			throwBack = e;
 			latch.countDown();
 			done = true;
 		}
 	}
 	
 	public boolean cancel() {
-		latch.countDown();
 		cancelled = true;
+		latch.countDown();
 		return true;
 	}
 
