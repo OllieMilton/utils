@@ -73,7 +73,7 @@ public class ConditionalWaitTest {
 		ConditionalWait<TestState, String> condWait = new ConditionalWait<>();
 		new Thread(() -> {
 			try {
-				Thread.sleep(300);
+				Thread.sleep(200);
 				condWait.cancel();
 			} catch (Exception e) {
 			
@@ -82,21 +82,44 @@ public class ConditionalWaitTest {
 		condWait.get(TestState.THREE);
 	}
 	
+	@Test
 	public void lambdaTest() throws TimeoutException {
 		ConditionalWait<TestState, String> condWait = new ConditionalWait<>();
 		new Thread(() -> {
 			try {
-				Thread.sleep(200);
+				Thread.sleep(100);
 				condWait.test(TestState.ONE, "ONE");
-				Thread.sleep(200);
+				Thread.sleep(100);
 				condWait.test(TestState.TWO, "TWO");
-				Thread.sleep(200);
+				Thread.sleep(100);
 				condWait.test(TestState.THREE, "THREE");
 			} catch (Exception e) {
 			
 			}
 		}).start();
-		Assert.assertEquals("THREE", condWait.get((value) -> value == TestState.THREE, 10, TimeUnit.MILLISECONDS));
+		Assert.assertEquals("THREE", condWait.get((value) -> value == TestState.THREE, 1, TimeUnit.SECONDS));
+	}
+	
+	@Test(expected=RuntimeException.class)
+	public void exceptionReturnTest() throws TimeoutException {
+		ConditionalWait<TestState, String> condWait = new ConditionalWait<>();
+		new Thread(() -> {
+			try {
+				Thread.sleep(100);
+				condWait.test(TestState.ONE, "ONE");
+				Thread.sleep(100);
+				condWait.test(TestState.TWO, "TWO");
+				Thread.sleep(100);
+				condWait.test(TestState.THREE, "THREE");
+			} catch (Exception e) {
+			
+			}
+		}).start();
+		Assert.assertEquals("THREE", condWait.get((value) -> throwException(), 1, TimeUnit.SECONDS));
+	}
+	
+	private boolean throwException() {
+		throw new RuntimeException("FLAPS");
 	}
 	
 }
