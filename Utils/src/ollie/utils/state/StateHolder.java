@@ -243,25 +243,25 @@ public class StateHolder<T extends Enum<T>> {
 	
 	/**
 	 * Makes the calling thread wait until current state becomes equal to the given state {@code waitTest}.
-	 * @param waitTest - the state to wait for.
+	 * @param waitCondition - the condition to wait for.
 	 * @param timeout - the amount of time to timeout after.
 	 * @param unit - the unit of the timeout amount.
 	 * @throws TimeoutException if the timeout expires.
 	 */
-	public void waitForState(WaitCondition<T> waitTest, long timeout, TimeUnit unit) throws TimeoutException {
+	public void waitForState(WaitCondition<T> waitCondition, long timeout, TimeUnit unit) throws TimeoutException {
 		ConditionalWait<T, T> condWait = null;
 		lock.readLock().lock();
 		try {
-			if (waitTest.checkCondition(currentState)) {
+			if (waitCondition.checkCondition(currentState)) {
 				return;
 			} else {
-				condWait = new ConditionalWait<>();
+				condWait = new ConditionalWait<>(waitCondition);
 				waitMap.put(Thread.currentThread(), condWait);
 			}
 		} finally {
 			lock.readLock().unlock();
 		}
-		condWait.get(waitTest, timeout, unit);
+		condWait.get(timeout, unit);
 		waitMap.remove(Thread.currentThread());
 	}
 	
