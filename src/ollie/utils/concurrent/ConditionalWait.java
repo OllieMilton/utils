@@ -20,6 +20,12 @@ public class ConditionalWait<T, R> {
 	private boolean cancelled = false;
 	private boolean done = false;
 	private Exception throwBack;
+	
+	public ConditionalWait() {}
+	
+	public ConditionalWait(WaitCondition<T> condition) {
+		this.condition = condition;
+	}
 
 	public R get(T waitTest, long timeout, TimeUnit unit) throws TimeoutException {
 		return get((value) -> doEqualityTest(waitTest, value), timeout, unit);
@@ -29,9 +35,27 @@ public class ConditionalWait<T, R> {
 		return ((waitTest == null && value == null) || (waitTest != null && waitTest.equals(value)));
 	}
 	
+	public R get(long timeout, TimeUnit unit) throws TimeoutException {
+		return get((WaitCondition<T>)null, timeout, unit);
+	}
+	
+	public R get() {
+		try {
+			return get((WaitCondition<T>)null, -1, null);
+		} catch (TimeoutException e) {
+			// this will never happen.
+			return null;
+		}
+	}
+	
 	public R get(WaitCondition<T> condition, long timeout, TimeUnit unit) throws TimeoutException {
 		try {
-			this.condition = condition;
+			if (condition != null) {
+				this.condition = condition;
+			}
+			if (this.condition == null) {
+				throw new NullPointerException("Wait condition must not be null");
+			}
 			if (unit == null) {
 				latch.await();
 			} else {
@@ -73,7 +97,7 @@ public class ConditionalWait<T, R> {
 
 	public void test(T test, R result) {
 		try {
-			if (condition != null && condition.checkCondition(test)) {
+			if (condition.checkCondition(test)) {
 				this.result = result;
 				latch.countDown();
 				done = true;
