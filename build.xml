@@ -33,7 +33,7 @@
 	</target>
   	
 	<target name="publish" depends="jar">
-        <ivy:publish resolver="ivysvn" pubrevision="1.40" update="true" overwrite="true">
+        <ivy:publish resolver="ivysvn" pubrevision="1.41" update="true" overwrite="true">
         	<artifacts pattern="${build}/[artifact].[ext]"/>
         </ivy:publish>
 		<delete dir="${build}"/>
