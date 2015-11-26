@@ -3,6 +3,9 @@ package ollie.utils.logging;
 import java.io.Serializable;
 import java.time.Instant;
 
+import serialiser.annotation.Serialisable;
+
+@Serialisable("logEntry")
 public class LogEntry implements Serializable {
 
 	private static final long serialVersionUID = -7840711619738114734L;

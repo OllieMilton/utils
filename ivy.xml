@@ -9,5 +9,6 @@
         <dependency org="junit" name="junit" rev="4.12" conf="test -> default"/>
         <dependency org="log4j" name="log4j" rev="1.2.17" conf="compile -> master" />
         <dependency org="commons-logging" name="commons-logging" rev="1.2" conf="compile -> default"/>
+        <dependency org="serialiser" name="serialiser" rev="1.29" conf="compile -> master"/>
     </dependencies>
 </ivy-module>
