@@ -1,4 +1,4 @@
-package ollie.utils.logging;
+package ollie.utils.logging.l4j;
 
 import java.util.LinkedList;
 
@@ -8,6 +8,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import ollie.utils.logging.l4j.LogEntry;
+import ollie.utils.logging.l4j.LogEntryAppender;
 
 @RunWith(JUnit4.class)
 public class LogEntryAppenderTest {
