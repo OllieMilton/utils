@@ -6,4 +6,8 @@ import org.apache.commons.logging.LogFactory;
 public class SomeOtherLoggingClass {
 
 	protected final Log logger = LogFactory.getLog("ollie.utils.logging");
+	
+	public void logTrace() {
+		logger.trace("A trace message from some other class.");
+	}
 }
