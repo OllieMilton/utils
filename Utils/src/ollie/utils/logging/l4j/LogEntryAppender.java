@@ -11,6 +11,12 @@ public class LogEntryAppender extends AppenderSkeleton {
 	private LogEntryListener listener;
 	private String identifier;
 	
+	/**
+	 * Create a new {@code LogEntryAppender} and attaches it to the loggers of the given classes.
+	 * @param identifier - a string that identifies the source of the log messages.
+	 * @param listener - the listener.
+	 * @param classes - the classes of the loggers to bind to.
+	 */
 	public LogEntryAppender(String identifier, LogEntryListener listener, Class<?>...classes) {
 		this.identifier = identifier;
 		this.listener = listener;
@@ -19,6 +25,11 @@ public class LogEntryAppender extends AppenderSkeleton {
 		}
 	}
 	
+	/**
+	 * Create a new {@code LogEntryAppender} and attaches it to the root logger.
+	 * @param identifier - a string that identifies the source of the log messages.
+	 * @param listener - the listener.
+	 */
 	public LogEntryAppender(String identifier, LogEntryListener listener) {
 		this.identifier = identifier;
 		this.listener = listener;
