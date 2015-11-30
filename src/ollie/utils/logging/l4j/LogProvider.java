@@ -1,4 +1,4 @@
-package ollie.utils.logging;
+package ollie.utils.logging.l4j;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

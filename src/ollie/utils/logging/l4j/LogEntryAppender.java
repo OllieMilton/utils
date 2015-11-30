@@ -1,12 +1,13 @@
-package ollie.utils.logging;
+package ollie.utils.logging.l4j;
 
 import java.time.Instant;
+import java.util.Enumeration;
 
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 
-import ollie.utils.logging.LogEntry;
+import ollie.utils.logging.l4j.LogEntry;
 
 public class LogEntryAppender extends AppenderSkeleton {
 
@@ -18,6 +19,15 @@ public class LogEntryAppender extends AppenderSkeleton {
 		this.listener = listener;
 		for (Class<?> c : classes) {
 			Logger.getLogger(c).addAppender(this);
+		}
+	}
+	
+	public LogEntryAppender(String identifier, LogEntryListener listener) {
+		this.identifier = identifier;
+		this.listener = listener;
+		for (Enumeration<?> lenums = Logger.getRootLogger().getLoggerRepository().getCurrentLoggers(); lenums.hasMoreElements();) {
+			Logger logger = (Logger) lenums.nextElement();
+			logger.addAppender(this);
 		}
 	}
 		

@@ -1,6 +1,6 @@
-package ollie.utils.logging;
+package ollie.utils.logging.l4j;
 
-import ollie.utils.logging.LogEntry;
+import ollie.utils.logging.l4j.LogEntry;
 
 public interface LogEntryListener {
 
