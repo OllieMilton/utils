@@ -73,4 +73,9 @@ public interface ByteBuffer {
 	 * @param emptyValue - the value to return if the buffer is empty.
 	 */
 	void setEmptyValue(byte emptyValue);
+	
+	/**
+	 * Prevents any further writes to the buffer
+	 */
+	void commit();
 }

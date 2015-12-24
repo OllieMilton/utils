@@ -185,4 +185,10 @@ public class CircularByteBuffer implements ByteBuffer {
 		this.emptyValue = emptyValue;
 	}
 
+	@Override
+	public void commit() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
