@@ -1,16 +1,16 @@
 package ollie.common.datastructure;
 
-import java.nio.BufferOverflowException;
-
 public class ArrayByteBuffer implements ByteBuffer {
 
 	private byte[] buffer;
 	private int readPos;
 	private int writePos;
+	private int endPos;
 	private byte emptyValue;
 	
 	public ArrayByteBuffer(int size) {
 		buffer = new byte[size];
+		endPos = size;
 	}
 	
 	/* (non-Javadoc)
@@ -18,10 +18,11 @@ public class ArrayByteBuffer implements ByteBuffer {
 	 */
 	@Override
 	public void put(byte in) {
-		if (freeSpace() > 0) {
+		int fs = freeSpace();
+		if (fs > 0) {
 			buffer[writePos++] = in;
 		} else {
-			throw new BufferOverflowException();
+			throw new BufferOverflowException("Free space ["+fs+"] write ps ["+writePos+"]");
 		}
 	}
 	
@@ -30,11 +31,12 @@ public class ArrayByteBuffer implements ByteBuffer {
 	 */
 	@Override
 	public void put(byte[] in) {
-		if (freeSpace() >= in.length) {
+		int fs = freeSpace();
+		if (fs >= in.length) {
 			System.arraycopy(in, 0, buffer, writePos, in.length);
 			writePos += in.length;
 		} else {
-			throw new BufferOverflowException();
+			throw new BufferOverflowException("Free space ["+fs+"] Buffer length ["+buffer.length+"] write ps ["+writePos+"] in length ["+in.length+"]");
 		}
 	}
 	
@@ -111,7 +113,7 @@ public class ArrayByteBuffer implements ByteBuffer {
 	 */
 	@Override
 	public int length() {
-		return buffer.length;
+		return endPos;
 	}
 	
 	/* (non-Javadoc)
@@ -136,5 +138,10 @@ public class ArrayByteBuffer implements ByteBuffer {
 	@Override
 	public void setEmptyValue(byte emptyValue) {
 		this.emptyValue = emptyValue;
+	}
+
+	@Override
+	public void commit() {
+		endPos = writePos;
 	}
 }

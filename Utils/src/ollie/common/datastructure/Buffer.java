@@ -78,4 +78,5 @@ public interface Buffer<T> {
 	 * @param emptyValue - the value to return if the buffer is empty.
 	 */
 	void setEmptyValue(T emptyValue);
+	
 }
