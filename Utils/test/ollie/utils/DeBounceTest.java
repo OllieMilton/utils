@@ -16,9 +16,9 @@ public class DeBounceTest {
 		return "";
 	}
 	
-	//@Test
+	@Test
 	public void deBounce() {
-		SimpleDeBounce db = new SimpleDeBounce(500);
+		SimpleDeBounce<Void, Void> db = new SimpleDeBounce<>(500);
 		for (;;)
 			db.invoke(() -> someFunction());
 	}
