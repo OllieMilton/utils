@@ -166,6 +166,14 @@ public class StateHolder<T extends Enum<T>> {
 		lock.writeLock().lock();
 		try {
 			setState(initialState);
+			// down grade the lock then call the listeners
+			lock.readLock().lock();
+			try {
+				releaseWriteLock();
+				callListeners(initialState);
+			} finally {
+				lock.readLock().unlock();
+			}
 		} finally {
 			releaseWriteLock();
 		}
