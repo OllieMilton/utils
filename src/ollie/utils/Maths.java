@@ -18,7 +18,7 @@ public class Maths {
 	}
 	
 	/**
-	 * Converts the input number of the input range to the put put range.
+	 * Converts the input number of the input range to the out put range.
 	 * @param intput - the number to convert.
 	 */
 	public static double convertRange(double input, double inputHigh, double inputLow, double outputHigh, double outputLow) {
