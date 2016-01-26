@@ -13,6 +13,7 @@ public class Promise<T> implements Future<T> {
 	private boolean cancelled = false;
 	private boolean done = false;
 
+	@Override
 	public T get(long timeout, TimeUnit unit) throws TimeoutException {
 		try {
 			if (unit == null) {
@@ -33,6 +34,7 @@ public class Promise<T> implements Future<T> {
 		return r;
 	}
 
+	@Override
 	public T get() {
 		try {
 			return get(-1L, null);
