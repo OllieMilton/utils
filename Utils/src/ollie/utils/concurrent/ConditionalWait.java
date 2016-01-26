@@ -10,7 +10,8 @@ import java.util.concurrent.TimeoutException;
  * 
  * @author Ollie
  *
- * @param <T>
+ * @param <T> the generic type to test against.
+ * @param <R> the generic type of the returned value.
  */
 public class ConditionalWait<T, R> {
 
