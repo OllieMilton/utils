@@ -1,4 +1,4 @@
-package ollie.utils;
+package ollie.utils.concurrent;
 
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
