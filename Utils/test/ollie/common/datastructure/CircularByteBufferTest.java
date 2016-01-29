@@ -93,5 +93,16 @@ public class CircularByteBufferTest {
 		
 		Assert.assertTrue(buff.isEmpty());
 	}
+	
+	@Test
+	public void testMultiPut() {
+		ByteBuffer buff = new CircularByteBuffer(20);
+		buff.put(new byte[] {1,2,3,4,5});
+		buff.put(new byte[] {1,2,3,4,5});
+		buff.put(new byte[] {1,2,3,4,5});
+		buff.put(new byte[] {1,2,3,4,5});
+		buff.get();
+		Assert.assertEquals(1, buff.freeSpace());
+	}
 
 }
