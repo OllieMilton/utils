@@ -108,7 +108,6 @@ public class CircularByteBuffer implements ByteBuffer {
 				System.arraycopy(buffer, readPos, b, off, read);
 				readPos += read;
 			} else {
-				System.out.println("read pos - "+readPos+" first read - "+firstRead);
 				// need to wrap back round to the beginning of the array
 				System.arraycopy(buffer, readPos, b, off, firstRead);
 				readPos = 0;
