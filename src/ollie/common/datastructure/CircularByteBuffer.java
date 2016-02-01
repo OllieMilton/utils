@@ -49,11 +49,12 @@ public class CircularByteBuffer implements ByteBuffer {
 			} else {
 				// going to overrun the array length so need to wrap
 				int firstWrite = buffer.length - writePos;
-				int secondWrite = in.length - firstWrite;
 				System.arraycopy(in, 0, buffer, writePos, firstWrite);
 				writePos = 0;
+				int secondWrite = in.length - firstWrite;
 				System.arraycopy(in, 0, buffer, writePos, secondWrite);
 				writePos += secondWrite;
+				
 			}
 			if (readPos == writePos) {
 				full = true;
@@ -109,7 +110,10 @@ public class CircularByteBuffer implements ByteBuffer {
 				readPos += read;
 			} else {
 				// need to wrap back round to the beginning of the array
-				System.arraycopy(buffer, readPos, b, off, firstRead);
+				// first read could be zero if we have been reading exact multiples of the buffer.
+				if (firstRead > 0) {
+					System.arraycopy(buffer, readPos, b, off, firstRead);	
+				}
 				readPos = 0;
 				int secondRead = read - firstRead;
 				System.arraycopy(buffer, readPos, b, off+firstRead, secondRead);
@@ -189,7 +193,6 @@ public class CircularByteBuffer implements ByteBuffer {
 
 	@Override
 	public void commit() {
-		// TODO Auto-generated method stub
 		
 	}
 

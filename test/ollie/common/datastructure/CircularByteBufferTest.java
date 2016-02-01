@@ -104,5 +104,40 @@ public class CircularByteBufferTest {
 		buff.get();
 		Assert.assertEquals(1, buff.freeSpace());
 	}
+	
+	@Test
+	public void testReFill() {
+		ByteBuffer buff = new CircularByteBuffer(10);
+		buff.put(new byte[] {1,2,3,4,5});
+		buff.put(new byte[] {6,7,8,9,10});
+		int i=0;
+		while (i++ < 100000) {
+			byte[] result = new byte[2];
+			Assert.assertEquals(2, buff.get(result));
+			Assert.assertArrayEquals(new byte[] {1,2}, result);
+			
+			result = new byte[2];
+			Assert.assertEquals(2, buff.get(result));
+			Assert.assertArrayEquals(new byte[] {3,4}, result);
+			
+			result = new byte[2];
+			Assert.assertEquals(2, buff.get(result));
+			Assert.assertArrayEquals(new byte[] {5,6}, result);
+		
+			buff.put(new byte[] {1,2,3,4,5});
+			
+			result = new byte[2];
+			Assert.assertEquals(2, buff.get(result));
+			Assert.assertArrayEquals(new byte[] {7,8}, result);
+			
+			result = new byte[2];
+			Assert.assertEquals(2, buff.get(result));
+			Assert.assertArrayEquals(new byte[] {9,10}, result);
+			
+			buff.put(new byte[] {6,7,8,9,10});
+			
+		}
+		
+	}
 
 }
