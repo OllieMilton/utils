@@ -118,7 +118,10 @@ public class CircularBuffer<T> implements Buffer<T> {
 				readPos += read;
 			} else {
 				// need to wrap back round to the beginning of the array
-				System.arraycopy(buffer, readPos, t, off, firstRead);
+				// first read could be zero if we have been reading exact multiples of the buffer.
+				if (firstRead > 0) {
+					System.arraycopy(buffer, readPos, t, off, firstRead);	
+				}
 				readPos = 0;
 				int secondRead = read - firstRead;
 				System.arraycopy(buffer, readPos, t, off+firstRead, secondRead);
