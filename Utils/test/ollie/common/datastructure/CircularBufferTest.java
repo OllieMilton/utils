@@ -93,5 +93,50 @@ public class CircularBufferTest {
 		
 		Assert.assertTrue(buff.isEmpty());
 	}
+	
+	@Test
+	public void testMultiPut() {
+		Buffer<Integer> buff = new CircularBuffer<>(20, Integer.class);
+		buff.put(new Integer[] {1,2,3,4,5});
+		buff.put(new Integer[] {1,2,3,4,5});
+		buff.put(new Integer[] {1,2,3,4,5});
+		buff.put(new Integer[] {1,2,3,4,5});
+		buff.get();
+		Assert.assertEquals(1, buff.freeSpace());
+	}
+	
+	@Test
+	public void testReFill() {
+		Buffer<Integer> buff = new CircularBuffer<>(10, Integer.class);
+		buff.put(new Integer[] {1,2,3,4,5});
+		buff.put(new Integer[] {6,7,8,9,10});
+		int i=0;
+		while (i++ < 100000) {
+			Integer[] result = new Integer[2];
+			Assert.assertEquals(2, buff.get(result));
+			Assert.assertArrayEquals(new Integer[] {1,2}, result);
+			
+			result = new Integer[2];
+			Assert.assertEquals(2, buff.get(result));
+			Assert.assertArrayEquals(new Integer[] {3,4}, result);
+			
+			result = new Integer[2];
+			Assert.assertEquals(2, buff.get(result));
+			Assert.assertArrayEquals(new Integer[] {5,6}, result);
+		
+			buff.put(new Integer[] {1,2,3,4,5});
+			
+			result = new Integer[2];
+			Assert.assertEquals(2, buff.get(result));
+			Assert.assertArrayEquals(new Integer[] {7,8}, result);
+			
+			result = new Integer[2];
+			Assert.assertEquals(2, buff.get(result));
+			Assert.assertArrayEquals(new Integer[] {9,10}, result);
+			
+			buff.put(new Integer[] {6,7,8,9,10});
+			
+		}
+	}
 
 }
