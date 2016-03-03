@@ -1,69 +1,57 @@
 package ollie.utils.logging.l4j;
 
+import java.io.Serializable;
 import java.time.Instant;
 
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggingEvent;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 
-public class LogEntryAppender extends AppenderSkeleton {
+public class LogEntryAppender extends AbstractAppender {
 
+	private static final long serialVersionUID = 6665544816691356127L;
 	private LogEntryListener listener;
 	private String identifier;
-	
-	/**
-	 * Create a new {@code LogEntryAppender} and attaches it to the loggers of the given classes.
-	 * @param identifier - a string that identifies the source of the log messages.
-	 * @param listener - the listener.
-	 * @param classes - the classes of the loggers to bind to.
-	 */
-	public LogEntryAppender(String identifier, LogEntryListener listener, Class<?>...classes) {
-		this.identifier = identifier;
-		this.listener = listener;
-		for (Class<?> c : classes) {
-			Logger.getLogger(c).addAppender(this);
-		}
-	}
 	
 	/**
 	 * Create a new {@code LogEntryAppender} and attaches it to the root logger.
 	 * @param identifier - a string that identifies the source of the log messages.
 	 * @param listener - the listener.
 	 */
-	public LogEntryAppender(String identifier, LogEntryListener listener) {
+	public LogEntryAppender(String identifier, LogEntryListener listener, Filter filter, Layout<? extends Serializable> layout) {
+		super(identifier, filter, layout);
 		this.identifier = identifier;
 		this.listener = listener;
-		Logger.getRootLogger().addAppender(this);
 	}
 		
 	/* (non-Javadoc)
-	 * @see org.apache.log4j.Appender#close()
+	 * @see org.apache.logging.log4j.core.Appender#append(org.apache.logging.log4j.core.LogEvent)
 	 */
 	@Override
-	public void close() {
-	
-	}
-
-	/* (non-Javadoc)
-	 * @see org.apache.log4j.Appender#requiresLayout()
-	 */
-	@Override
-	public boolean requiresLayout() {
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.apache.log4j.AppenderSkeleton#append(org.apache.log4j.spi.LoggingEvent)
-	 */
-	@Override
-	protected void append(LoggingEvent event) {
+	public void append(LogEvent event) {
 		LogEntry entry = new LogEntry();
 		entry.setIdentifier(identifier);
-		entry.setTimeStamp(Instant.ofEpochMilli(event.getTimeStamp()));
+		entry.setTimeStamp(Instant.ofEpochMilli(event.getTimeMillis()));
 		entry.setLevel(event.getLevel().toString());
 		entry.setLoggingClass(event.getLoggerName());
-		entry.setMessage(event.getMessage().toString());
+		entry.setMessage(event.getMessage().getFormattedMessage());
 		listener.onLogEntry(entry);
 	}
 	
+	public static void registerAppender(String identifier, LogEntryListener listener) {
+		final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        final Configuration config = ctx.getConfiguration();
+        Layout<? extends Serializable> layout = PatternLayout.createDefaultLayout(config);
+        Appender app = new LogEntryAppender(identifier, listener, config.getFilter(), layout);
+        app.start();
+        config.getRootLogger().addAppender(app, Level.ALL, config.getFilter());
+	}
+		
 }
