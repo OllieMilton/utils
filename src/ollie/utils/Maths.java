@@ -20,6 +20,11 @@ public class Maths {
 	/**
 	 * Converts the input number of the input range to the out put range.
 	 * @param intput - the number to convert.
+	 * @param inputHigh - the upper limit of the input range.
+	 * @param inputLow - the lower limit of the input range.
+	 * @param outputHigh - the upper limit of the output range.
+	 * @param outputLow - the lower limit of the output range.
+	 * @return The converted number.
 	 */
 	public static double convertRange(double input, double inputHigh, double inputLow, double outputHigh, double outputLow) {
 		// result = ((input - inputLow) / (inputHigh - inputLow)) * (outputHigh - outputLow) + outputLow
