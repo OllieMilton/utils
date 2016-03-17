@@ -11,15 +11,21 @@ public class JSONBuilder {
 	private JSONObject root;
 	private JSONObject currentObject;
 	private int openObjects;
+	private String sd;
 	
-	private JSONBuilder() {
+	private JSONBuilder(char stringDelim) {
 		root = new JSONObject(null);
 		currentObject = root;
 		openObjects = 0;
+		if (stringDelim == '"') {
+			sd = "\"";
+		} else {
+			sd = String.valueOf(stringDelim); 
+		}
 	}
 	
-	public static JSONBuilder newJSONBuilder() {
-		return new JSONBuilder();
+	public static JSONBuilder newJSONBuilder(char stringDelim) {
+		return new JSONBuilder(stringDelim);
 	}
 	
 	public JSONBuilder startObject(String name) {
@@ -70,6 +76,13 @@ public class JSONBuilder {
 		return root.toString();
 	}
 	
+	public String prettyPrint() {
+		if (openObjects > 0) {
+			throw new IllegalStateException("One or more objects not closed.");
+		}
+		return root.pretty(0);
+	}
+	
 	private class JSONNode {
 		String name;
 
@@ -100,6 +113,10 @@ public class JSONBuilder {
 			}
 			return true;
 		}
+		
+		public String pretty(int hierarchy) {
+			return toString();
+		}
 
 	}
 	
@@ -128,6 +145,43 @@ public class JSONBuilder {
 			result.append("}");
 			return result.toString();
 		}
+		
+		@Override
+		public String pretty(int hierarchy) {
+			StringBuilder result;
+			if (Strings.isNotBlank(name)) {
+				result = new StringBuilder();
+				for (int i=0; i<hierarchy; i++) {
+					result.append("\t");
+				}
+				result.append(sd+name+sd+":{\n");
+			} else {
+				result = new StringBuilder("{\n");
+			}
+			int level = hierarchy;
+			for (Iterator<JSONNode> itr = nodes.iterator(); itr.hasNext();) {
+				JSONNode node = itr.next();
+				if (node instanceof JSONObject) {
+					if (level == hierarchy) {
+						level ++;
+					}
+				} else {
+					for (int i=0; i<level+1; i++) {
+						result.append("\t");
+					}
+				}
+				result.append(node.pretty(level));
+				if (itr.hasNext()) {
+					result.append(",");
+				}
+				result.append("\n");
+			}
+			for (int i=0; i<hierarchy; i++) {
+				result.append("\t");
+			}
+			result.append("}");
+			return result.toString();
+		}
 
 	}
 	
@@ -141,7 +195,7 @@ public class JSONBuilder {
 		
 		@Override
 		public String toString() {
-			return "'"+name+"':'"+value+"'";
+			return sd+name+sd+":"+sd+value+sd;
 		}
 		
 	}
@@ -156,7 +210,7 @@ public class JSONBuilder {
 		
 		@Override
 		public String toString() {
-			return "'"+name+"':"+value;
+			return sd+name+sd+":"+value;
 		}
 		
 	}
