@@ -24,8 +24,12 @@ public class JSONBuilder {
 		}
 	}
 	
-	public static JSONBuilder newJSONBuilder(char stringDelim) {
-		return new JSONBuilder(stringDelim);
+	public static JSONBuilder newSingleQuoteJSONBuilder() {
+		return new JSONBuilder('\'');
+	}
+	
+	public static JSONBuilder newDoubleQuoteJSONBuilder() {
+		return new JSONBuilder('"');
 	}
 	
 	public JSONBuilder startObject(String name) {
