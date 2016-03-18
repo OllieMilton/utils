@@ -159,11 +159,11 @@ public class JSONBuilder {
 		}
 		
 		@Override
-		public String pretty(int hierarchy) {
+		public String pretty(int hierarchyLevel) {
 			StringBuilder result;
 			if (Strings.isNotBlank(name)) {
 				result = new StringBuilder();
-				for (int i=0; i<hierarchy; i++) {
+				for (int i=0; i<hierarchyLevel; i++) {
 					result.append("\t");
 				}
 				result.append(sd+name+sd+":{\n");
@@ -174,19 +174,21 @@ public class JSONBuilder {
 			for (Iterator<JSONNode> itr = nodes.iterator(); itr.hasNext();) {
 				JSONNode node = itr.next();
 				if (node instanceof JSONObject) {
-					result.append(node.pretty(hierarchy+1));
+					// increment the hierarchy by one for the object so that it gets indented.
+					result.append(node.pretty(hierarchyLevel+1));
 				} else {
-					for (int i=0; i<hierarchy+1; i++) {
+					// add one to the hierarchy so that we indent all the fields of the object.
+					for (int i=0; i<hierarchyLevel+1; i++) {
 						result.append("\t");
 					}
-					result.append(node.pretty(hierarchy));
+					result.append(node.pretty(hierarchyLevel));
 				}
 				if (itr.hasNext()) {
 					result.append(",");
 				}
 				result.append("\n");
 			}
-			for (int i=0; i<hierarchy; i++) {
+			for (int i=0; i<hierarchyLevel; i++) {
 				result.append("\t");
 			}
 			result.append("}");
