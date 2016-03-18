@@ -42,7 +42,7 @@ public class JSONBuilder {
 		return new JSONBuilder('"');
 	}
 	
-	public JSONBuilder startObject(String name) {
+	public JSONBuilder beginObject(String name) {
 		if (Strings.isBlank(name)) {
 			throw new NullPointerException("Object must have a name.");
 		}
