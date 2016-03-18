@@ -6,6 +6,14 @@ import java.util.List;
 
 import ollie.utils.Strings;
 
+/**
+ * 
+ * A simple builder class for building JSON strings.
+ * 
+ * TODO add support for arrays, collections and maps.
+ * @author Ollie
+ *
+ */
 public class JSONBuilder {
 
 	private JSONObject root;
@@ -162,19 +170,17 @@ public class JSONBuilder {
 			} else {
 				result = new StringBuilder("{\n");
 			}
-			int level = hierarchy;
+			
 			for (Iterator<JSONNode> itr = nodes.iterator(); itr.hasNext();) {
 				JSONNode node = itr.next();
 				if (node instanceof JSONObject) {
-					if (level == hierarchy) {
-						level ++;
-					}
+					result.append(node.pretty(hierarchy+1));
 				} else {
-					for (int i=0; i<level+1; i++) {
+					for (int i=0; i<hierarchy+1; i++) {
 						result.append("\t");
 					}
+					result.append(node.pretty(hierarchy));
 				}
-				result.append(node.pretty(level));
 				if (itr.hasNext()) {
 					result.append(",");
 				}
