@@ -1,8 +1,11 @@
 package ollie.utils.serialisation;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import ollie.utils.Strings;
 
@@ -10,7 +13,6 @@ import ollie.utils.Strings;
  * 
  * A simple builder class for building JSON strings.
  * 
- * TODO add support for arrays, collections and maps.
  * @author Ollie
  *
  */
@@ -63,6 +65,7 @@ public class JSONBuilder {
 		return this;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public JSONBuilder field(String name, Object value) {
 		if (Strings.isBlank(name)) {
 			throw new NullPointerException("Field must have a name.");
@@ -70,6 +73,18 @@ public class JSONBuilder {
 		JSONNode node;
 		if (value instanceof Number || value instanceof Boolean) {
 			node = new JSONPrimativeField(name, String.valueOf(value));
+		} else if (value instanceof Collection) {
+			Collection<String> col = (Collection<String>) value;
+			node = new JSONArrayField(name, col.toArray(new String[col.size()]));
+		} else if (value.getClass().isArray()) {
+			node = new JSONArrayField(name, (String[])value);
+		} else if (value instanceof Map) {
+			JSONObject obj = new JSONObject(name);
+			Map<String, String> map = (Map<String, String>) value;
+			for (Entry<String, String> entry : map.entrySet()) {
+				obj.nodes.add(new JSONStringField(entry.getKey(), entry.getValue()));
+			}
+			node = obj;
 		} else {
 			node = new JSONStringField(name, String.valueOf(value));	
 		}
@@ -225,5 +240,29 @@ public class JSONBuilder {
 			return sd+name+sd+":"+value;
 		}
 		
+	}
+	
+	private class JSONArrayField extends JSONNode {
+		String[] value;
+		
+		JSONArrayField(String name, String[] value) {
+			this.name = name;
+			this.value = value;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder array = new StringBuilder("[");
+			if (value != null) {
+				for (int i=0; i<value.length; i++) {
+					array.append(sd+value[i]+sd);
+					if (i<value.length-1) {
+						array.append(",");
+					}
+				}
+			}
+			array.append("]");
+			return sd+name+sd+":"+array.toString();
+		}
 	}
 }
