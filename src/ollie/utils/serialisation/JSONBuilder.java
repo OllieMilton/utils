@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import ollie.utils.Strings;
 
 /**
@@ -74,15 +76,15 @@ public class JSONBuilder {
 		if (value instanceof Number || value instanceof Boolean) {
 			node = new JSONPrimativeField(name, String.valueOf(value));
 		} else if (value instanceof Collection) {
-			Collection<String> col = (Collection<String>) value;
-			node = new JSONArrayField(name, col.toArray(new String[col.size()]));
+			Collection<Object> col = (Collection<Object>) value;
+			node = new JSONArrayField(name, col.toArray(new Object[col.size()]));
 		} else if (value.getClass().isArray()) {
-			node = new JSONArrayField(name, (String[])value);
+			node = new JSONArrayField(name, toObjectArray(value));
 		} else if (value instanceof Map) {
 			JSONObject obj = new JSONObject(name);
-			Map<String, String> map = (Map<String, String>) value;
-			for (Entry<String, String> entry : map.entrySet()) {
-				obj.nodes.add(new JSONStringField(entry.getKey(), entry.getValue()));
+			Map<String, Object> map = (Map<String, Object>) value;
+			for (Entry<String, Object> entry : map.entrySet()) {
+				obj.nodes.add(new JSONStringField(entry.getKey(), String.valueOf(entry.getValue())));
 			}
 			node = obj;
 		} else {
@@ -243,9 +245,9 @@ public class JSONBuilder {
 	}
 	
 	private class JSONArrayField extends JSONNode {
-		String[] value;
+		Object[] value;
 		
-		JSONArrayField(String name, String[] value) {
+		JSONArrayField(String name, Object[] value) {
 			this.name = name;
 			this.value = value;
 		}
@@ -255,7 +257,12 @@ public class JSONBuilder {
 			StringBuilder array = new StringBuilder("[");
 			if (value != null) {
 				for (int i=0; i<value.length; i++) {
-					array.append(sd+value[i]+sd);
+					Object val = value[i];
+					if (val instanceof Number || val instanceof Boolean) {
+						array.append(val);
+					} else {
+						array.append(sd+val+sd);						
+					}
 					if (i<value.length-1) {
 						array.append(",");
 					}
@@ -264,5 +271,39 @@ public class JSONBuilder {
 			array.append("]");
 			return sd+name+sd+":"+array.toString();
 		}
+	}
+	
+	private Object[] toObjectArray(Object obj) {
+		Object[] result = null;
+		if (obj.getClass().isArray()) {
+			if (obj instanceof int[]) {
+				Integer[] arr = ArrayUtils.toObject((int[]) obj);
+				result = arr;
+			} else if (obj instanceof long[]) {
+				Long[] arr = ArrayUtils.toObject((long[]) obj);
+				result = arr;
+			} else if (obj instanceof double[]) {
+				Double[] arr = ArrayUtils.toObject((double[]) obj);
+				result = arr;
+			} else if (obj instanceof float[]) {
+				Float[] arr = ArrayUtils.toObject((float[]) obj);
+				result = arr;
+			} else if (obj instanceof byte[]) {
+				Byte[] arr = ArrayUtils.toObject((byte[]) obj);
+				result = arr;
+			} else if (obj instanceof short[]) {
+				Short[] arr = ArrayUtils.toObject((short[]) obj);
+				result = arr;
+			} else if (obj instanceof char[]) {
+				Character[] arr = ArrayUtils.toObject((char[]) obj);
+				result = arr;
+			} else if (obj instanceof boolean[]) {
+				Boolean[] arr = ArrayUtils.toObject((boolean[]) obj);
+				result = arr;
+			} else {
+				result = (Object[]) obj;
+			}
+		}
+		return result;
 	}
 }
