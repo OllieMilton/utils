@@ -259,9 +259,9 @@ public class JSONBuilder {
 				for (int i=0; i<value.length; i++) {
 					Object val = value[i];
 					if (val instanceof Number || val instanceof Boolean) {
-						array.append(val);
+						array.append(String.valueOf(val));
 					} else {
-						array.append(sd+val+sd);						
+						array.append(sd+String.valueOf(val)+sd);						
 					}
 					if (i<value.length-1) {
 						array.append(",");
