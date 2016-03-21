@@ -107,10 +107,26 @@ public class JSONBuilderTest {
 	}
 	
 	@Test
-	public void arrayTest() {
+	public void stringArrayTest() {
 		Assert.assertEquals("{'array':['one','two','three']}", 
 				JSONBuilder.newSingleQuoteJSONBuilder()
 				.field("array", new String[]{"one","two","three"})
+				.toString());
+	}
+	
+	@Test
+	public void arrayTest() {
+		Assert.assertEquals("{'array':[1,2,3]}", 
+				JSONBuilder.newSingleQuoteJSONBuilder()
+				.field("array", new Integer[]{1,2,3})
+				.toString());
+	}
+	
+	@Test
+	public void primativeArrayTest() {
+		Assert.assertEquals("{'array':[1,2,3]}", 
+				JSONBuilder.newSingleQuoteJSONBuilder()
+				.field("array", new int[]{1,2,3})
 				.toString());
 	}
 	
