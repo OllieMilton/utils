@@ -7,9 +7,8 @@
     </configurations>
     <dependencies>
         <dependency org="junit" name="junit" rev="4.12" conf="test -> default"/>
-        <dependency org="org.apache.logging.log4j" name="log4j-jcl" rev="2.5" conf="test -> default"/>
-        <dependency org="org.apache.logging.log4j" name="log4j-api" rev="2.5" conf="compile -> master"/>
-  		<dependency org="org.apache.logging.log4j" name="log4j-core" rev="2.5" conf="compile -> master"/>
+        <dependency org="org.apache.logging.log4j" name="log4j-api" rev="2.6.2" conf="compile -> master"/>
+  		<dependency org="org.apache.logging.log4j" name="log4j-core" rev="2.6.2" conf="compile -> master"/>                
         <dependency org="commons-logging" name="commons-logging" rev="1.2" conf="compile -> default"/>
         <dependency org="serialiser" name="serialiser" rev="1.29" conf="compile -> master"/>
         <dependency org="commons-lang" name="commons-lang" rev="2.4" conf="compile -> default"/>
