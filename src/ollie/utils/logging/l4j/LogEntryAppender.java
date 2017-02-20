@@ -16,7 +16,6 @@ import org.apache.logging.log4j.core.layout.PatternLayout;
 
 public class LogEntryAppender extends AbstractAppender {
 
-	private static final long serialVersionUID = 6665544816691356127L;
 	private LogEntryListener listener;
 	private String identifier;
 	
