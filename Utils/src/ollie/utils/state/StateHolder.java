@@ -14,7 +14,7 @@ import ollie.utils.concurrent.WaitCondition;
 
 /**
  * A thread safe container for some 'state' enum. Methods are provided for transitioning 
- * state in a thread safe manor using a reentrant read write lock.
+ * state in a thread safe manner using a reentrant read write lock.
  * Additionally a listeners can be supplied so that some action can hang off 
  * a state transition - note that the listener is invoked from inside the read lock.
  * A set of terminal states can also be supplied, once any of the terminal states have been reached 
@@ -102,8 +102,7 @@ public class StateHolder<T extends Enum<T>> {
 	public final boolean is(T...args) {
 		lock.readLock().lock();
 		try {
-			Set<T> set = new HashSet<>(Arrays.asList(args));
-			return set.contains(currentState);
+			return new HashSet<>(Arrays.asList(args)).contains(currentState);
 		} finally {
 			lock.readLock().unlock();
 		}
