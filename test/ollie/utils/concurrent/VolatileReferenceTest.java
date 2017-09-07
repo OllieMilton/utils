@@ -23,9 +23,5 @@ public class VolatileReferenceTest {
 		}
 		Assert.assertEquals("test2", vref.get().get());
 	}
-	
-	public void resourceLeak() throws FileNotFoundException {
-		Reference<String> ref = vref.get();
-		ref.get();
-	}
+
 }
