@@ -4,7 +4,7 @@ import java.io.Closeable;
 
 public class VolatileReference<T> {
 
-	private ThreadLocal<Reference<T>> tl = new ThreadLocal<>();
+	private final ThreadLocal<Reference<T>> tl = new ThreadLocal<>();
 	private volatile T ref;
 	
 	public VolatileReference(T ref) {
