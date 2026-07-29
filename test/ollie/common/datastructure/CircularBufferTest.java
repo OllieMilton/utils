@@ -91,6 +91,41 @@ public class CircularBufferTest {
 		Assert.assertTrue(buff.isEmpty());
 	}
 	
+	/**
+	 * Wraps mid array so that the put is split into two copies with a non
+	 * zero first segment (firstWrite = 2, secondWrite = 4). Regression test
+	 * for the wrapping put copying the second segment from offset 0 of the
+	 * source instead of offset firstWrite.
+	 */
+	@Test
+	public void testMidArrayWrap() {
+		Buffer<Integer> buff = new CircularBuffer<>(10, Integer.class);
+		buff.put(new Integer[] {0,0,0,0,0,0,0,0});
+		Assert.assertEquals(8, buff.get(new Integer[8]));
+
+		buff.put(new Integer[] {1,2,3,4,5,6});
+		Integer[] result = new Integer[6];
+		Assert.assertEquals(6, buff.get(result));
+		Assert.assertArrayEquals(new Integer[] {1,2,3,4,5,6}, result);
+	}
+
+	/**
+	 * The single element put must wrap the write position back to the start
+	 * of the array rather than writing past the end.
+	 */
+	@Test
+	public void testSingleElementPutWraps() {
+		Buffer<Integer> buff = new CircularBuffer<>(4, Integer.class);
+		buff.put(new Integer[] {1,2,3});
+		Assert.assertEquals(1, buff.get().intValue());
+		Assert.assertEquals(2, buff.get().intValue());
+		buff.put(4);
+		buff.put(5);
+		Assert.assertEquals(3, buff.get().intValue());
+		Assert.assertEquals(4, buff.get().intValue());
+		Assert.assertEquals(5, buff.get().intValue());
+	}
+
 	@Test
 	public void testMultiPut() {
 		Buffer<Integer> buff = new CircularBuffer<>(20, Integer.class);

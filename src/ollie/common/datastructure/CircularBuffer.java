@@ -36,6 +36,7 @@ public class CircularBuffer<T> implements Buffer<T> {
 	@Override
 	public void put(T in) {
 		if (freeSpace() > 0) {
+			writePos = writePos % buffer.length;
 			buffer[writePos++] = in;
 			if (readPos == writePos) {
 				full = true;
@@ -61,7 +62,7 @@ public class CircularBuffer<T> implements Buffer<T> {
 				int secondWrite = in.length - firstWrite;
 				System.arraycopy(in, 0, buffer, writePos, firstWrite);
 				writePos = 0;
-				System.arraycopy(in, 0, buffer, writePos, secondWrite);
+				System.arraycopy(in, firstWrite, buffer, writePos, secondWrite);
 				writePos += secondWrite;
 			}
 			if (readPos == writePos) {
