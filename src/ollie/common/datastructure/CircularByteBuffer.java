@@ -27,6 +27,7 @@ public class CircularByteBuffer implements ByteBuffer {
 	@Override
 	public void put(byte in) {
 		if (freeSpace() > 0) {
+			writePos = writePos % buffer.length;
 			buffer[writePos++] = in;
 			if (readPos == writePos) {
 				full = true;
@@ -52,7 +53,7 @@ public class CircularByteBuffer implements ByteBuffer {
 				System.arraycopy(in, 0, buffer, writePos, firstWrite);
 				writePos = 0;
 				int secondWrite = in.length - firstWrite;
-				System.arraycopy(in, 0, buffer, writePos, secondWrite);
+				System.arraycopy(in, firstWrite, buffer, writePos, secondWrite);
 				writePos += secondWrite;
 				
 			}

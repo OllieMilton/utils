@@ -91,6 +91,61 @@ public class CircularByteBufferTest {
 		Assert.assertTrue(buff.isEmpty());
 	}
 	
+	/**
+	 * Wraps mid array so that the put is split into two copies with a non
+	 * zero first segment (firstWrite = 2, secondWrite = 4). Regression test
+	 * for the wrapping put copying the second segment from offset 0 of the
+	 * source instead of offset firstWrite.
+	 */
+	@Test
+	public void testMidArrayWrap() {
+		ByteBuffer buff = new CircularByteBuffer(10);
+		buff.put(new byte[] {0,0,0,0,0,0,0,0});
+		Assert.assertEquals(8, buff.get(new byte[8]));
+
+		buff.put(new byte[] {1,2,3,4,5,6});
+		byte[] result = new byte[6];
+		Assert.assertEquals(6, buff.get(result));
+		Assert.assertArrayEquals(new byte[] {1,2,3,4,5,6}, result);
+	}
+
+	/**
+	 * Repeatedly wraps with a chunk size that does not divide the buffer
+	 * length so the wrap point moves through the array, checking every chunk
+	 * round trips intact.
+	 */
+	@Test
+	public void testMisalignedRepeatedWraps() {
+		ByteBuffer buff = new CircularByteBuffer(2048);
+		byte[] in = new byte[500];
+		byte[] out = new byte[500];
+		for (int chunk = 0; chunk < 50; chunk++) {
+			for (int i = 0; i < in.length; i++) {
+				in[i] = (byte) (chunk*500 + i);
+			}
+			buff.put(in);
+			Assert.assertEquals(500, buff.get(out));
+			Assert.assertArrayEquals("corrupted at chunk "+chunk, in, out);
+		}
+	}
+
+	/**
+	 * The single byte put must wrap the write position back to the start of
+	 * the array rather than writing past the end.
+	 */
+	@Test
+	public void testSingleBytePutWraps() {
+		ByteBuffer buff = new CircularByteBuffer(4);
+		buff.put(new byte[] {1,2,3});
+		Assert.assertEquals(1, buff.get());
+		Assert.assertEquals(2, buff.get());
+		buff.put((byte)4);
+		buff.put((byte)5);
+		Assert.assertEquals(3, buff.get());
+		Assert.assertEquals(4, buff.get());
+		Assert.assertEquals(5, buff.get());
+	}
+
 	@Test
 	public void testMultiPut() {
 		ByteBuffer buff = new CircularByteBuffer(20);
