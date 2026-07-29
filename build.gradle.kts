@@ -48,11 +48,34 @@ publishing {
 		}
 	}
 	repositories {
-		// Publishing writes into a sibling checkout of
-		// github.com/OllieMilton/maven-repo - commit and push it afterwards.
+		// Published straight to the git backed maven-repo: the repository is
+		// cloned into the build directory, published into, committed and
+		// pushed - all handled by ./gradlew publish.
 		maven {
 			name = "gitMavenRepo"
-			url = uri(layout.projectDirectory.dir("../maven-repo"))
+			url = uri(layout.buildDirectory.dir("maven-repo"))
 		}
 	}
+}
+
+val mavenRepoGitUri = providers.gradleProperty("mavenRepoGitUri")
+	.getOrElse("git@github.com:OllieMilton/maven-repo.git")
+val mavenRepoDir = layout.buildDirectory.dir("maven-repo").get().asFile
+
+val cloneMavenRepo = tasks.register<Exec>("cloneMavenRepo") {
+	description = "Clones the git backed maven repository ready for publishing."
+	doFirst { mavenRepoDir.deleteRecursively() }
+	commandLine("git", "clone", "--depth", "1", mavenRepoGitUri, mavenRepoDir.absolutePath)
+}
+
+val pushMavenRepo = tasks.register<Exec>("pushMavenRepo") {
+	description = "Commits and pushes newly published artefacts to the git backed maven repository."
+	workingDir = mavenRepoDir
+	commandLine("bash", "-c",
+		"git add -A && (git diff --cached --quiet || (git commit -m 'Published ${project.group}:${project.name}:${project.version}' && git push))")
+}
+
+tasks.withType<PublishToMavenRepository>().configureEach {
+	dependsOn(cloneMavenRepo)
+	finalizedBy(pushMavenRepo)
 }
