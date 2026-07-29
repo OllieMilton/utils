@@ -1,0 +1,22 @@
+[
+	{
+		"label": "gradle build",
+		"command": "./gradlew",
+		"args": ["build"]
+	},
+	{
+		"label": "gradle test",
+		"command": "./gradlew",
+		"args": ["test"]
+	},
+	{
+		"label": "gradle clean",
+		"command": "./gradlew",
+		"args": ["clean"]
+	},
+	{
+		"label": "gradle publish",
+		"command": "./gradlew",
+		"args": ["publish"]
+	}
+]
